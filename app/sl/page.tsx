@@ -24,7 +24,7 @@ export default function SloPage() {
         <SocialProof items={sl.social} />
         <Programs content={sl.programs} lang={sl.lang} />
         <HowItWorks content={sl.steps} />
-        <CTASection content={sl.cta} stripeEnvKey="NEXT_PUBLIC_STRIPE_EN" />
+        <CTASection content={sl.cta} stripeEnvKey="NEXT_PUBLIC_STRIPE_SL_F" />
       </main>
       <Footer content={sl.footer} />
       <CookieBanner text={sl.cookie.text} accept={sl.cookie.accept} decline={sl.cookie.decline} />

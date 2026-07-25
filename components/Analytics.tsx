@@ -20,10 +20,12 @@ export default function Analytics() {
 
   const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
   const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+  const hasGa = !!GA_ID && GA_ID !== 'placeholder' && GA_ID !== 'G-XXXXXXXXXX';
+  const hasPixel = !!PIXEL_ID && PIXEL_ID !== 'placeholder' && PIXEL_ID !== 'XXXXXXXXXXXXXXXX';
 
   return (
     <>
-      {GA_ID && (
+      {hasGa && (
         <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
           <Script id="ga" strategy="afterInteractive">
@@ -36,7 +38,7 @@ export default function Analytics() {
           </Script>
         </>
       )}
-      {PIXEL_ID && (
+      {hasPixel && (
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)

@@ -9,9 +9,9 @@ export default function Footer({ content }: { content: Content['footer'] }) {
           <span className="text-sm text-gray-500">{content.copy}</span>
         </div>
         <div className="text-sm mb-4">
-          <a href="#" className="text-primary font-medium hover:underline mr-2">{content.privacy}</a>
+          <a href="/privacy" className="text-primary font-medium hover:underline mr-2">{content.privacy}</a>
           <span className="text-gray-400">|</span>
-          <a href="#" className="text-primary font-medium hover:underline ml-2">{content.terms}</a>
+          <a href="/terms" className="text-primary font-medium hover:underline ml-2">{content.terms}</a>
         </div>
         <p className="text-xs text-gray-500 max-w-xl leading-relaxed">{content.disclaimer}</p>
       </div>

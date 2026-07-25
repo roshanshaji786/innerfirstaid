@@ -4,13 +4,14 @@ import Lead from '@/models/Lead';
 
 export async function POST(req: NextRequest) {
   try {
-    await dbConnect();
-    const { email, lang } = await req.json();
+    const body = await req.json().catch(() => null);
+    const { email, lang } = body ?? {};
 
     if (!email || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Valid email required' }, { status: 400 });
     }
 
+    await dbConnect();
     await Lead.create({ email: email.toLowerCase().trim(), lang: lang === 'sl' ? 'sl' : 'en' });
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error: any) {

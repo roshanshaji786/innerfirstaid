@@ -6,7 +6,7 @@ import type { Content } from '@/lib/content';
 
 export default function Hero({ content, lang }: { content: Content['hero']; lang: string }) {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,10 +18,13 @@ export default function Hero({ content, lang }: { content: Content['hero']; lang
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, lang }),
       });
-      if (res.ok) setStatus('success');
-      else setStatus('idle');
+      if (res.ok) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
     } catch {
-      setStatus('idle');
+      setStatus('error');
     }
   };
 
@@ -62,7 +65,10 @@ export default function Hero({ content, lang }: { content: Content['hero']; lang
               required
               placeholder={content.placeholder}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (status === 'error') setStatus('idle');
+              }}
               className="flex-1 px-5 py-4 rounded text-text placeholder-gray-400 outline-none focus:ring-2 focus:ring-accent shadow-lg"
             />
             <button
@@ -70,9 +76,14 @@ export default function Hero({ content, lang }: { content: Content['hero']; lang
               disabled={status === 'loading' || status === 'success'}
               className="bg-primary text-white font-semibold px-7 py-4 rounded hover:bg-accent transition-all whitespace-nowrap disabled:opacity-70"
             >
-              {status === 'success' ? 'Sent!' : status === 'loading' ? '...' : content.formBtn}
+              {status === 'success' ? 'Sent!' : status === 'loading' ? '...' : status === 'error' ? 'Try again' : content.formBtn}
             </button>
           </form>
+          {status === 'error' && (
+            <p className="text-white text-sm mt-3" role="alert">
+              Something went wrong. Please check the email and try again.
+            </p>
+          )}
           <p className="text-white/80 text-sm mt-4">{content.formNote}</p>
         </div>
       </div>
