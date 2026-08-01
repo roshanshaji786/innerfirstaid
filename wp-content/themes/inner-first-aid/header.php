@@ -23,7 +23,12 @@ $ifa_is_sl    = ifa_is_sl();
 	<?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
-<?php wp_body_open(); ?>
+<?php
+// wp_body_open() only exists since WordPress 5.2 — guard for older installs.
+if ( function_exists( 'wp_body_open' ) ) {
+	wp_body_open();
+}
+?>
 
 <header id="ifa-header" class="ifa-header" data-ifa-header>
 	<div class="ifa-container ifa-header__inner">

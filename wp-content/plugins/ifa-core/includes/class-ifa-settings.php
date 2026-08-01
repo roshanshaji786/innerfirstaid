@@ -145,10 +145,10 @@ class IFA_Settings {
 		$this->add_field( 'ifa_cookie', 'cookie_decline_en', __( 'Decline label (EN)', 'ifa-core' ), 'text' );
 		$this->add_field( 'ifa_cookie', 'cookie_decline_sl', __( 'Decline label (SL)', 'ifa-core' ), 'text' );
 
-		$this->add_field( 'ifa_links', 'en_url', __( 'English home URL (leave empty for site home)', 'ifa-core' ), 'url' );
-		$this->add_field( 'ifa_links', 'sl_url', __( 'Slovenian home URL (e.g. https://site.com/sl/)', 'ifa-core' ), 'url' );
-		$this->add_field( 'ifa_links', 'privacy_url', __( 'Privacy policy URL', 'ifa-core' ), 'url' );
-		$this->add_field( 'ifa_links', 'terms_url', __( 'Terms URL', 'ifa-core' ), 'url' );
+		$this->add_field( 'ifa_links', 'en_url', __( 'English home URL (leave empty — auto-uses the site home)', 'ifa-core' ), 'url' );
+		$this->add_field( 'ifa_links', 'sl_url', __( 'Slovenian home URL (leave empty — auto-uses /sl/)', 'ifa-core' ), 'url' );
+		$this->add_field( 'ifa_links', 'privacy_url', __( 'Privacy policy URL (leave empty — auto-uses /privacy/)', 'ifa-core' ), 'url' );
+		$this->add_field( 'ifa_links', 'terms_url', __( 'Terms URL (leave empty — auto-uses /terms/)', 'ifa-core' ), 'url' );
 	}
 
 	/**

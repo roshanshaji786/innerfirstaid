@@ -126,11 +126,16 @@ class IFA_Builder {
 		}
 		flush_rewrite_rules();
 
-		// Auto-fill page URL settings.
-		ifa_update_option( 'en_url', get_permalink( $home ) );
-		ifa_update_option( 'sl_url', get_permalink( $sl ) );
-		ifa_update_option( 'privacy_url', get_permalink( $built['privacy_en'] ) );
-		ifa_update_option( 'terms_url', get_permalink( $built['terms_en'] ) );
+		// NOTE: page URL settings (en_url, sl_url, privacy_url, terms_url) are
+		// intentionally reset to empty so the front end always derives them from
+		// the current site URL (home_url()). This keeps everything working after
+		// a domain change or site move (and clears stale values from older
+		// versions of the plugin). Users can still set custom URLs manually in
+		// Settings > Inner First Aid after building.
+		ifa_update_option( 'en_url', '' );
+		ifa_update_option( 'sl_url', '' );
+		ifa_update_option( 'privacy_url', '' );
+		ifa_update_option( 'terms_url', '' );
 
 		return ! in_array( 0, array_values( $built ), true );
 	}
