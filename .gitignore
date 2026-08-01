@@ -1,34 +1,19 @@
-# Dependencies
-/node_modules
-/.pnp
-.pnp.js
-.yarn/install-state.gz
+# WordPress core (downloaded by scripts/install.sh)
+/wordpress/
 
-# Testing
-/coverage
+# Local downloads
+/.downloads/
 
-# Next.js
-/.next/
-/out/
+# Test artifacts
+*.sqlite
+*.sqlite-journal
+scripts/tests/node_modules/
 
-# Production
-/build
+# Uploads & generated media
+wp-content/uploads/
 
-# Misc
-.DS_Store
-*.pem
-
-# Debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Local env files
-.env*.local
-
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
+# Logs & env
+*.log
+.env
+.env.local
+wp-config.php

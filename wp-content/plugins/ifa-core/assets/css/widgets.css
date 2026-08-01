@@ -1,0 +1,538 @@
+/* ==========================================================================
+   Inner First Aid — Elementor widget styles
+   ========================================================================== */
+
+.ifa-section-label {
+	display: block;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--ifa-accent, #2d7a47);
+	margin-bottom: 32px;
+}
+
+/* ---------- Hero ---------- */
+
+.ifa-hero {
+	position: relative;
+	display: flex;
+	align-items: center;
+	min-height: 100dvh;
+	padding: 120px 0 72px;
+	overflow: hidden;
+}
+
+.ifa-hero__bg {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+}
+
+.ifa-hero__overlay {
+	position: absolute;
+	inset: 0;
+}
+
+.ifa-hero__inner {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	max-width: 760px;
+	margin: 0 auto 0 0;
+}
+
+.ifa-hero__badge {
+	display: inline-block;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	padding: 8px 16px;
+	border-radius: 999px;
+	backdrop-filter: blur(4px);
+	margin-bottom: 24px;
+}
+
+.ifa-hero__title {
+	color: #fff;
+	font-size: clamp(34px, 6vw, 60px);
+	font-weight: 600;
+	line-height: 1.1;
+	letter-spacing: -0.02em;
+	margin: 0 0 20px;
+}
+
+.ifa-hero__sub {
+	color: rgba(255, 255, 255, 0.9);
+	font-size: clamp(17px, 2.4vw, 20px);
+	line-height: 1.55;
+	max-width: 560px;
+	margin: 0 0 32px;
+}
+
+.ifa-hero__note {
+	color: rgba(255, 255, 255, 0.8);
+	font-size: 14px;
+	margin: 16px 0 0;
+}
+
+/* ---------- Lead form ---------- */
+
+.ifa-lead-form {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-width: 512px;
+}
+
+@media (min-width: 640px) {
+	.ifa-lead-form {
+		flex-direction: row;
+		align-items: stretch;
+	}
+}
+
+.ifa-lead-form__input {
+	flex: 1 1 auto;
+	min-width: 0;
+	padding: 15px 20px;
+	font-size: 16px;
+	font-family: inherit;
+	color: var(--ifa-text, #111);
+	background: #fff;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+	outline: none;
+}
+
+.ifa-lead-form__input:focus {
+	border-color: var(--ifa-accent, #2d7a47);
+}
+
+.ifa-lead-form__submit {
+	white-space: nowrap;
+}
+
+.ifa-lead-form__status {
+	display: none;
+	width: 100%;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.ifa-lead-form__status.is-visible {
+	display: block;
+}
+
+.ifa-lead-form__status.is-success {
+	color: #b7e4c7;
+}
+
+.ifa-lead-form__status.is-error {
+	color: #ffd9d9;
+}
+
+.ifa-lead-form__submit:disabled {
+	opacity: 0.7;
+	cursor: progress;
+}
+
+/* Honeypot: invisible to humans, visible to bots. */
+.ifa-hp {
+	position: absolute !important;
+	left: -9999px !important;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* ---------- Social proof ---------- */
+
+.ifa-social {
+	padding: 48px 0;
+}
+
+.ifa-social__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 24px 0;
+}
+
+@media (min-width: 768px) {
+	.ifa-social__grid {
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0;
+	}
+}
+
+.ifa-social__item {
+	text-align: center;
+	padding: 12px 24px;
+}
+
+@media (min-width: 768px) {
+	.ifa-social__item + .ifa-social__item {
+		border-left: 1px solid rgba(255, 255, 255, 0.12);
+	}
+}
+
+.ifa-social__title {
+	display: block;
+	font-size: 18px;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.ifa-social__sub {
+	font-size: 14px;
+	opacity: 0.75;
+}
+
+/* ---------- Programs ---------- */
+
+.ifa-programs {
+	padding: 96px 0;
+	background: #fff;
+}
+
+.ifa-programs__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 24px;
+}
+
+@media (min-width: 768px) {
+	.ifa-programs__grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+.ifa-card {
+	position: relative;
+	border-radius: 12px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.ifa-card__bar {
+	display: block;
+	height: 3px;
+}
+
+.ifa-card--active {
+	background: var(--ifa-card-active, #f0faf3);
+	border: 1px solid var(--ifa-card-border, #c8e6d0);
+}
+
+.ifa-card--active .ifa-card__bar {
+	background: var(--ifa-primary, #1a4d2e);
+}
+
+.ifa-card--inactive {
+	background: #fafafa;
+	border: 1px solid #e8e8e8;
+	opacity: 0.72;
+}
+
+.ifa-card--inactive .ifa-card__bar {
+	background: #d1d5db;
+}
+
+.ifa-card__body {
+	padding: 40px 48px;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+}
+
+@media (max-width: 640px) {
+	.ifa-card__body {
+		padding: 28px 24px;
+	}
+}
+
+.ifa-card__icon {
+	width: 44px;
+	height: 44px;
+	margin-bottom: 20px;
+	color: var(--ifa-primary, #1a4d2e);
+}
+
+.ifa-card--inactive .ifa-card__icon {
+	color: #9ca3af;
+}
+
+.ifa-card__title {
+	font-size: 24px;
+	font-weight: 600;
+	margin: 0 0 8px;
+}
+
+.ifa-card__text {
+	color: #6b7280;
+	margin: 0 0 32px;
+}
+
+.ifa-card__cta {
+	text-align: center;
+	margin-top: auto;
+}
+
+.ifa-card__gender-toggle {
+	width: 100%;
+	margin-top: auto;
+}
+
+.ifa-card__gender-options {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 12px;
+}
+
+@media (min-width: 640px) {
+	.ifa-card__gender-options {
+		flex-direction: row;
+	}
+
+	.ifa-card__gender-options .ifa-btn {
+		flex: 1;
+		text-align: center;
+	}
+}
+
+/* ---------- How it works ---------- */
+
+.ifa-steps {
+	padding: 96px 0;
+}
+
+.ifa-steps__row {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+@media (min-width: 768px) {
+	.ifa-steps__row {
+		flex-direction: row;
+		align-items: flex-start;
+		gap: 0;
+	}
+}
+
+.ifa-steps__item {
+	display: flex;
+	align-items: flex-start;
+	gap: 20px;
+	flex: 1;
+	position: relative;
+}
+
+.ifa-steps__num {
+	width: 48px;
+	height: 48px;
+	flex-shrink: 0;
+	border-radius: 999px;
+	background: var(--ifa-primary, #1a4d2e);
+	color: #fff;
+	font-size: 18px;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ifa-steps__content {
+	flex: 1;
+}
+
+.ifa-steps__title {
+	font-size: 18px;
+	font-weight: 600;
+	margin: 0 0 4px;
+}
+
+.ifa-steps__text {
+	color: #6b7280;
+	font-size: 14px;
+	line-height: 1.6;
+	margin: 0;
+}
+
+.ifa-steps__divider {
+	display: none;
+}
+
+@media (min-width: 768px) {
+	.ifa-steps__item {
+		padding-right: 24px;
+	}
+
+	.ifa-steps__divider {
+		display: block;
+		width: 1px;
+		height: 48px;
+		background: var(--ifa-card-border, #c8e6d0);
+		flex-shrink: 0;
+		align-self: center;
+		margin: 0 24px 0 0;
+	}
+}
+
+/* ---------- Pricing ---------- */
+
+.ifa-pricing {
+	padding: 96px 0;
+	text-align: center;
+	color: #fff;
+}
+
+.ifa-pricing__inner {
+	max-width: 768px;
+}
+
+.ifa-pricing__title {
+	font-size: clamp(28px, 4vw, 40px);
+	font-weight: 600;
+	margin: 0 0 32px;
+}
+
+.ifa-pricing__prices {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: center;
+	gap: 12px;
+	margin-bottom: 32px;
+}
+
+.ifa-pricing__old {
+	font-size: 20px;
+	text-decoration: line-through;
+	opacity: 0.6;
+}
+
+.ifa-pricing__new {
+	font-size: clamp(32px, 5vw, 42px);
+	font-weight: 700;
+}
+
+.ifa-pricing__note {
+	font-size: 17px;
+	opacity: 0.9;
+}
+
+.ifa-pricing__btn {
+	background: #fff;
+	color: var(--ifa-primary, #1a4d2e);
+	font-size: 18px;
+	padding: 16px 32px;
+	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.ifa-pricing__btn:hover {
+	color: var(--ifa-primary, #1a4d2e);
+	transform: translateY(-2px);
+}
+
+.ifa-pricing__note-small {
+	margin: 20px 0 0;
+	font-size: 14px;
+	opacity: 0.8;
+}
+
+/* ---------- Language widget ---------- */
+
+.ifa-langwidget {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.ifa-langwidget__current {
+	color: var(--ifa-text, #111);
+}
+
+.ifa-langwidget__other {
+	color: var(--ifa-primary, #1a4d2e);
+	text-decoration: none;
+}
+
+.ifa-langwidget__other:hover {
+	text-decoration: underline;
+}
+
+/* ---------- Cookie banner ---------- */
+
+.ifa-cookie {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 9999;
+	background: #fff;
+	border-top: 1px solid #e5e7eb;
+	box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+	padding: 20px 0;
+	transform: translateY(0);
+	transition: transform 0.4s ease;
+}
+
+.ifa-cookie.is-hidden {
+	transform: translateY(110%);
+}
+
+.ifa-cookie__inner {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 0 24px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+@media (min-width: 768px) {
+	.ifa-cookie__inner {
+		flex-direction: row;
+	}
+}
+
+.ifa-cookie__text {
+	margin: 0;
+	font-size: 14px;
+	color: #6b7280;
+	flex: 1;
+}
+
+.ifa-cookie__actions {
+	display: flex;
+	gap: 12px;
+	flex-shrink: 0;
+}
+
+.ifa-cookie__decline {
+	background: none;
+	border: 0;
+	color: #6b7280;
+	font-size: 14px;
+	font-family: inherit;
+	padding: 8px 12px;
+	cursor: pointer;
+}
+
+.ifa-cookie__decline:hover {
+	color: var(--ifa-text, #111);
+}

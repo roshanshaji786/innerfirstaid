@@ -1,0 +1,49 @@
+{
+    "version": "0.4",
+    "title": "privacy-en",
+    "type": "page",
+    "content": [
+        {
+            "id": "AakzS",
+            "elType": "section",
+            "settings": {
+                "gap": "no"
+            },
+            "elements": [
+                {
+                    "id": "vVDMm",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "ro2Ln",
+                            "elType": "widget",
+                            "widgetType": "heading",
+                            "settings": {
+                                "title": "Privacy Policy",
+                                "header_size": "h1",
+                                "align": "left"
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "5pQq2",
+                            "elType": "widget",
+                            "widgetType": "text-editor",
+                            "settings": {
+                                "editor": "<p>Inner First Aid collects the email address you submit so we can send the free guide, program emails, and related updates you request.</p>\n<p>We use cookies and analytics only after consent. You can decline cookies in the banner.</p>\n<p>We do not sell your personal information. Payment processing is handled by Stripe when you choose to buy a program.</p>\n<p>To request deletion or correction of your email record, contact the Inner First Aid team through the email address used for your purchase or guide delivery.</p>"
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "page_settings": [],
+    "metadata": {
+        "source": "Inner First Aid builder"
+    }
+}

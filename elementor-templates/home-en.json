@@ -1,0 +1,201 @@
+{
+    "version": "0.4",
+    "title": "home-en",
+    "type": "page",
+    "content": [
+        {
+            "id": "cpLoR",
+            "elType": "section",
+            "settings": {
+                "gap": "no",
+                "layout": "full_width"
+            },
+            "elements": [
+                {
+                    "id": "qqXxB",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "scBZP",
+                            "elType": "widget",
+                            "widgetType": "ifa-hero",
+                            "settings": {
+                                "lang": "en",
+                                "badge": "The international platform for psychological first aid",
+                                "headline": "When it hurts - here is step by step.",
+                                "subheadline": "Free guide: 3 mistakes that prolong the pain. Enter your email and receive it now.",
+                                "form_button": "Get free guide ->",
+                                "form_note": "Free | Anonymous | No credit card",
+                                "form_placeholder": "Enter your email",
+                                "success_text": "Sent! Check your inbox.",
+                                "error_text": "Something went wrong. Please check the email and try again.",
+                                "bg_image": 5
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "U5s5C",
+            "elType": "section",
+            "settings": {
+                "gap": "no"
+            },
+            "elements": [
+                {
+                    "id": "QiiwH",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "Kp9NG",
+                            "elType": "widget",
+                            "widgetType": "ifa-social-proof",
+                            "settings": {
+                                "items": [
+                                    {
+                                        "title": "Psychologist verified",
+                                        "subtitle": "Evidence-based content"
+                                    },
+                                    {
+                                        "title": "21-day program",
+                                        "subtitle": "One email per day"
+                                    },
+                                    {
+                                        "title": "Anonymous",
+                                        "subtitle": "Nobody knows. Only you."
+                                    }
+                                ]
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "Jfj25",
+            "elType": "section",
+            "settings": {
+                "gap": "no",
+                "section_id": "programs"
+            },
+            "elements": [
+                {
+                    "id": "HFZrX",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "B24fm",
+                            "elType": "widget",
+                            "widgetType": "ifa-programs",
+                            "settings": {
+                                "label": "Programs",
+                                "card1_title": "After a breakup",
+                                "card1_text": "When thoughts of them won't go away.",
+                                "card1_btn": "Start program ->",
+                                "card1_mode": "direct",
+                                "card1_link_source": "site_default",
+                                "card2_title": "Insomnia",
+                                "card2_text": "Your path to restful sleep.",
+                                "card2_btn": "Coming soon"
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ltWY0",
+            "elType": "section",
+            "settings": {
+                "gap": "no"
+            },
+            "elements": [
+                {
+                    "id": "CJwHf",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "LhkIV",
+                            "elType": "widget",
+                            "widgetType": "ifa-how-it-works",
+                            "settings": {
+                                "label": "How it works",
+                                "steps": [
+                                    {
+                                        "num": "1",
+                                        "title": "Enter your email",
+                                        "text": "Get the free guide instantly."
+                                    },
+                                    {
+                                        "num": "2",
+                                        "title": "Read it",
+                                        "text": "5 minutes. 3 mistakes you're probably making."
+                                    },
+                                    {
+                                        "num": "3",
+                                        "title": "Start the 21-day program",
+                                        "text": "EUR 39.90. One email per day. Step by step."
+                                    }
+                                ]
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "bYeLE",
+            "elType": "section",
+            "settings": {
+                "gap": "no"
+            },
+            "elements": [
+                {
+                    "id": "Zo8d6",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "RRwLt",
+                            "elType": "widget",
+                            "widgetType": "ifa-pricing",
+                            "settings": {
+                                "title": "21-day breakup recovery program",
+                                "price_old": "EUR 110.90",
+                                "price_new": "EUR 39.90",
+                                "price_note": "| Instant access",
+                                "btn_text": "Start now ->",
+                                "note": "Anonymous | Instant access | No risk",
+                                "link_source": "site_default"
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "page_settings": [],
+    "metadata": {
+        "source": "Inner First Aid builder"
+    }
+}
