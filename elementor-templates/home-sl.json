@@ -1,0 +1,203 @@
+{
+    "version": "0.4",
+    "title": "home-sl",
+    "type": "page",
+    "content": [
+        {
+            "id": "gAuJP",
+            "elType": "section",
+            "settings": {
+                "gap": "no",
+                "layout": "full_width"
+            },
+            "elements": [
+                {
+                    "id": "Axwey",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "rCXr1",
+                            "elType": "widget",
+                            "widgetType": "ifa-hero",
+                            "settings": {
+                                "lang": "sl",
+                                "badge": "Mednarodna platforma za psiholosko prvo pomoc",
+                                "headline": "Ko te boli - tu je korak za korakom.",
+                                "subheadline": "Brezplacni vodic: 3 napake, ki podaljsajo bolecino. Vpisi email in ga prejmi takoj.",
+                                "form_button": "Prenesi brezplacni vodic ->",
+                                "form_note": "Brezplacno | Anonimno | Brez kreditne kartice",
+                                "form_placeholder": "Vpisi email",
+                                "success_text": "Poslano! Preveri svoj nabiralnik.",
+                                "error_text": "Nekaj je slo narobe. Preveri email in poskusi znova.",
+                                "bg_image": 5
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "KCd0e",
+            "elType": "section",
+            "settings": {
+                "gap": "no"
+            },
+            "elements": [
+                {
+                    "id": "6WLu7",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "wUJB8",
+                            "elType": "widget",
+                            "widgetType": "ifa-social-proof",
+                            "settings": {
+                                "items": [
+                                    {
+                                        "title": "Psiholosko preverjeno",
+                                        "subtitle": "Strokovno preverjena vsebina"
+                                    },
+                                    {
+                                        "title": "21-dnevni program",
+                                        "subtitle": "En email na dan"
+                                    },
+                                    {
+                                        "title": "Anonimno",
+                                        "subtitle": "Nihce ne ve. Samo ti."
+                                    }
+                                ]
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "sgXC1",
+            "elType": "section",
+            "settings": {
+                "gap": "no",
+                "section_id": "programs"
+            },
+            "elements": [
+                {
+                    "id": "8jzda",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "QboQX",
+                            "elType": "widget",
+                            "widgetType": "ifa-programs",
+                            "settings": {
+                                "label": "Programi",
+                                "card1_title": "Po razhodu",
+                                "card1_text": "Ko misli nanj/o ne gredo stran.",
+                                "card1_btn": "Zacni program ->",
+                                "card1_btn_female": "Za zenske",
+                                "card1_btn_male": "Za moske",
+                                "card1_mode": "gender",
+                                "card1_link_source": "site_default",
+                                "card2_title": "Nespecnost",
+                                "card2_text": "Tvoja pot do mirnega spanja.",
+                                "card2_btn": "Kmalu"
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "5ZXRa",
+            "elType": "section",
+            "settings": {
+                "gap": "no"
+            },
+            "elements": [
+                {
+                    "id": "PFk2r",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "Nd6rh",
+                            "elType": "widget",
+                            "widgetType": "ifa-how-it-works",
+                            "settings": {
+                                "label": "Kako deluje",
+                                "steps": [
+                                    {
+                                        "num": "1",
+                                        "title": "Vpisi email",
+                                        "text": "Dobis brezplacni vodic takoj."
+                                    },
+                                    {
+                                        "num": "2",
+                                        "title": "Preberi",
+                                        "text": "5 minut. 3 napake, ki jih verjetno delas."
+                                    },
+                                    {
+                                        "num": "3",
+                                        "title": "Zacni 21-dnevni program",
+                                        "text": "EUR 39.90. En email na dan. Korak za korakom."
+                                    }
+                                ]
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "jPUYf",
+            "elType": "section",
+            "settings": {
+                "gap": "no"
+            },
+            "elements": [
+                {
+                    "id": "jRLyM",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "wO4b3",
+                            "elType": "widget",
+                            "widgetType": "ifa-pricing",
+                            "settings": {
+                                "title": "21-dnevni program za okrevanje po razhodu",
+                                "price_old": "EUR 110.90",
+                                "price_new": "EUR 39.90",
+                                "price_note": "| Takojsen dostop",
+                                "btn_text": "Zacni zdaj ->",
+                                "note": "Anonimno | Takojsen dostop | Brez tveganja",
+                                "link_source": "site_default"
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "page_settings": [],
+    "metadata": {
+        "source": "Inner First Aid builder"
+    }
+}

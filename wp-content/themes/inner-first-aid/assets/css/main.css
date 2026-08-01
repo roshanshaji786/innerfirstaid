@@ -1,0 +1,323 @@
+/* ==========================================================================
+   Inner First Aid — theme styles
+   Design tokens match the original prototype.
+   ========================================================================== */
+
+:root {
+	--ifa-primary: #1a4d2e;
+	--ifa-accent: #2d7a47;
+	--ifa-light-bg: #e8f5ed;
+	--ifa-social-bg: #0d2e1c;
+	--ifa-steps-bg: #f8fdf9;
+	--ifa-card-active: #f0faf3;
+	--ifa-card-border: #c8e6d0;
+	--ifa-text: #111111;
+	--ifa-muted: #6b7280;
+	--ifa-white: #ffffff;
+	--ifa-header-h: 72px;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+	color: var(--ifa-text);
+	background: var(--ifa-white);
+	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+a {
+	color: var(--ifa-primary);
+}
+
+.ifa-container {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 0 24px;
+}
+
+/* ---------- Header ---------- */
+
+.ifa-header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 999;
+	background: var(--ifa-white);
+	border-bottom: 1px solid #e5e7eb;
+	transition: box-shadow 0.3s ease;
+}
+
+.ifa-header.is-scrolled {
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.ifa-header__inner {
+	height: var(--ifa-header-h);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+}
+
+.ifa-logo {
+	display: inline-flex;
+	align-items: center;
+	gap: 12px;
+	color: var(--ifa-primary);
+	text-decoration: none;
+	font-weight: 700;
+	font-size: 18px;
+	letter-spacing: -0.02em;
+}
+
+.ifa-logo:hover {
+	color: var(--ifa-accent);
+}
+
+.ifa-nav {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+.ifa-menu {
+	display: flex;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	gap: 8px;
+}
+
+.ifa-menu a {
+	display: block;
+	padding: 8px 12px;
+	color: var(--ifa-text);
+	text-decoration: none;
+	font-size: 15px;
+	font-weight: 500;
+	border-radius: 6px;
+}
+
+.ifa-menu a:hover {
+	color: var(--ifa-primary);
+	background: var(--ifa-light-bg);
+}
+
+.ifa-lang-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 14px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.ifa-lang-link {
+	color: var(--ifa-primary);
+	text-decoration: none;
+}
+
+.ifa-lang-link:hover {
+	color: var(--ifa-accent);
+	text-decoration: underline;
+}
+
+.ifa-lang-link.is-current {
+	color: var(--ifa-text);
+	cursor: default;
+}
+
+.ifa-lang-sep {
+	color: #d1d5db;
+}
+
+.ifa-btn {
+	display: inline-block;
+	background: var(--ifa-primary);
+	color: var(--ifa-white);
+	font-weight: 600;
+	font-size: 15px;
+	line-height: 1;
+	padding: 13px 22px;
+	border-radius: 8px;
+	text-decoration: none;
+	border: 0;
+	cursor: pointer;
+	transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.ifa-btn:hover {
+	background: var(--ifa-accent);
+	color: var(--ifa-white);
+}
+
+.ifa-btn:disabled,
+.ifa-btn.is-disabled {
+	background: #d1d5db;
+	color: #9ca3af;
+	cursor: not-allowed;
+}
+
+.ifa-nav-toggle {
+	display: none;
+	background: none;
+	border: 0;
+	padding: 8px;
+	cursor: pointer;
+	color: var(--ifa-text);
+}
+
+.ifa-nav-toggle .ifa-icon-close {
+	display: none;
+}
+
+@media (max-width: 1023px) {
+	.ifa-nav-toggle {
+		display: inline-flex;
+	}
+
+	.ifa-nav-toggle[aria-expanded='true'] .ifa-icon-burger {
+		display: none;
+	}
+
+	.ifa-nav-toggle[aria-expanded='true'] .ifa-icon-close {
+		display: block;
+	}
+
+	.ifa-nav {
+		display: none;
+		position: absolute;
+		top: var(--ifa-header-h);
+		left: 0;
+		right: 0;
+		background: var(--ifa-white);
+		border-bottom: 1px solid #e5e7eb;
+		flex-direction: column;
+		align-items: center;
+		gap: 18px;
+		padding: 28px 24px;
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+	}
+
+	.ifa-nav.is-open {
+		display: flex;
+	}
+
+	.ifa-menu {
+		flex-direction: column;
+		align-items: center;
+	}
+}
+
+/* ---------- Main ---------- */
+
+.ifa-main {
+	min-height: 60vh;
+}
+
+.ifa-page > .elementor {
+	min-height: 100dvh;
+}
+
+/* Make Elementor content inherit the brand font. */
+.elementor-widget-container,
+.elementor-widget {
+	font-family: inherit;
+}
+
+/* ---------- Footer ---------- */
+
+.ifa-footer {
+	background: var(--ifa-light-bg);
+	border-top: 1px solid var(--ifa-card-border);
+	padding: 48px 0;
+	font-size: 14px;
+}
+
+.ifa-footer__top {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.ifa-footer__logo {
+	font-weight: 700;
+	font-size: 17px;
+	color: var(--ifa-primary);
+	text-decoration: none;
+}
+
+.ifa-footer__copy {
+	color: #6b7280;
+	font-size: 14px;
+}
+
+.ifa-footer__links {
+	margin-bottom: 14px;
+	font-size: 14px;
+}
+
+.ifa-footer__links a {
+	color: var(--ifa-primary);
+	font-weight: 500;
+	text-decoration: none;
+}
+
+.ifa-footer__links a:hover {
+	text-decoration: underline;
+}
+
+.ifa-footer__links span {
+	color: #9ca3af;
+	margin: 0 4px;
+}
+
+.ifa-footer__disclaimer {
+	color: #6b7280;
+	font-size: 12px;
+	max-width: 640px;
+	line-height: 1.6;
+	margin: 0;
+}
+
+/* ---------- Accessibility ---------- */
+
+.screen-reader-text {
+	border: 0;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	width: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute !important;
+	word-wrap: normal !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}

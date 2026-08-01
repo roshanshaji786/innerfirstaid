@@ -1,0 +1,49 @@
+{
+    "version": "0.4",
+    "title": "terms-en",
+    "type": "page",
+    "content": [
+        {
+            "id": "NHkD1",
+            "elType": "section",
+            "settings": {
+                "gap": "no"
+            },
+            "elements": [
+                {
+                    "id": "vo82X",
+                    "elType": "column",
+                    "settings": {
+                        "_column_size": 100
+                    },
+                    "elements": [
+                        {
+                            "id": "IRWvE",
+                            "elType": "widget",
+                            "widgetType": "heading",
+                            "settings": {
+                                "title": "Terms of Service",
+                                "header_size": "h1",
+                                "align": "left"
+                            },
+                            "elements": []
+                        },
+                        {
+                            "id": "AihF5",
+                            "elType": "widget",
+                            "widgetType": "text-editor",
+                            "settings": {
+                                "editor": "<p>This program is informational and educational and does not constitute medical, psychological or therapeutic advice.</p>\n<p>By purchasing and using the program you agree that you use it at your own responsibility and that Inner First Aid is not liable for results.</p>\n<p>Payments are processed via Stripe and are final. No refunds after the program has been delivered.</p>"
+                            },
+                            "elements": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "page_settings": [],
+    "metadata": {
+        "source": "Inner First Aid builder"
+    }
+}
