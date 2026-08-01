@@ -125,10 +125,26 @@ every email, with **Export CSV** and delete buttons.
 - [ ] Elementor installed & activated
 - [ ] `inner-first-aid.zip` uploaded & theme activated
 - [ ] `ifa-core.zip` uploaded & plugin activated
-- [ ] "Build pages now" clicked
+- [ ] Pages built (v1.0.2+ builds them automatically on activation)
 - [ ] Stripe links pasted (buttons active)
 - [ ] (Optional) GA / Pixel IDs pasted
 - [ ] Checked the site: `yoursite.com` and `yoursite.com/sl/`
+
+---
+
+## ⚡ Final launch checklist (do these in wp-admin once)
+
+| # | Action | Where |
+| --- | --- | --- |
+| 1 | **Paste your Stripe payment links** — this is the ONLY thing that activates the "Start program" / "Start now" buttons | Settings → Inner First Aid → Payments |
+| 2 | (Optional) GA4 ID + Meta Pixel ID | Settings → Inner First Aid → Analytics |
+| 3 | (Optional) Notification email for new leads | Settings → Inner First Aid → Leads |
+| 4 | Check your captured leads after test submissions | **IFA Leads** menu (left sidebar) |
+| 5 | (Optional) Speed boost: browser caching + compression | See `htaccess-optimized.txt` in the repo — paste after `# END WordPress` in your root `.htaccess` |
+| 6 | Check the site on a phone too (the menu button + forms are mobile-tested) | `yoursite.com` |
+
+The security headers, SEO meta (description, Open Graph, JSON-LD), font preloading
+and script deferring are already built into the theme — no plugin needed.
 
 ---
 
