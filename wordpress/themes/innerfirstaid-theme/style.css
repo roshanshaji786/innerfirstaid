@@ -1,0 +1,58 @@
+/*
+Theme Name: Inner First Aid
+Theme URI: https://innerfirstaid.com/
+Author: Inner First Aid Team
+Author URI: https://innerfirstaid.com/
+Description: A highly optimized, clean, and beautiful WordPress theme for Inner First Aid. Built to match the original Vercel/Next.js site's performance and design. Fully compatible with Elementor, supporting seamless drag-and-drop editing.
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: innerfirstaid
+Tags: custom-background, custom-colors, custom-menu, featured-images, flexible-header, full-width-template, translation-ready, elementor-compatible
+*/
+
+/* Reset & Base Styles */
+html {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  scroll-behavior: smooth;
+  color: #111111;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+}
+
+/* Custom Tailwind Utility Classes Mapping for Inner First Aid */
+.bg-primary { background-color: #1a4d2e !important; }
+.text-primary { color: #1a4d2e !important; }
+.border-primary { border-color: #1a4d2e !important; }
+
+.bg-accent { background-color: #2d7a47 !important; }
+.text-accent { color: #2d7a47 !important; }
+.border-accent { border-color: #2d7a47 !important; }
+
+.bg-light-bg { background-color: #e8f5ed !important; }
+.text-light-bg { color: #e8f5ed !important; }
+
+.bg-social-bg { background-color: #0d2e1c !important; }
+.text-social-bg { color: #0d2e1c !important; }
+
+.bg-steps-bg { background-color: #f8fdf9 !important; }
+
+.bg-card-active { background-color: #f0faf3 !important; }
+.border-card-active-border { border-color: #c8e6d0 !important; }
+.border-footer-border { border-color: #c8e6d0 !important; }
+
+.text-text { color: #111111 !important; }
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}

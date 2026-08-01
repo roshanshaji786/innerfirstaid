@@ -1,0 +1,658 @@
+{
+  "version": "0.4",
+  "title": "Inner First Aid (English) Landing Page",
+  "type": "page",
+  "content": [
+    {
+      "id": "hero_section_en",
+      "elType": "section",
+      "settings": {
+        "background_background": "classic",
+        "background_image": {
+          "url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2400&q=85",
+          "id": "",
+          "size": "full",
+          "source": "external"
+        },
+        "background_position": "center center",
+        "background_repeat": "no-repeat",
+        "background_size": "cover",
+        "background_overlay_background": "classic",
+        "background_overlay_color": "rgba(10,35,18,0.62)",
+        "padding": {
+          "unit": "px",
+          "top": "120",
+          "right": "24",
+          "bottom": "120",
+          "left": "24",
+          "isLinked": false
+        },
+        "padding_mobile": {
+          "unit": "px",
+          "top": "80",
+          "right": "16",
+          "bottom": "80",
+          "left": "16",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "hero_column_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 100
+          },
+          "elements": [
+            {
+              "id": "hero_badge_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "The international platform for psychological first aid",
+                "header_size": "span",
+                "title_color": "#ffffff",
+                "align": "left",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 12 },
+                "typography_font_weight": "600",
+                "typography_text_transform": "uppercase",
+                "typography_letter_spacing": { "unit": "px", "size": 2 },
+                "background_background": "classic",
+                "background_color": "rgba(255,255,255,0.1)",
+                "border_border": "solid",
+                "border_width": { "unit": "px", "top": "1", "right": "1", "bottom": "1", "left": "1", "isLinked": true },
+                "border_color": "rgba(255,255,255,0.2)",
+                "border_radius": { "unit": "px", "top": "50", "right": "50", "bottom": "50", "left": "50", "isLinked": true },
+                "_padding": { "unit": "px", "top": "8", "right": "16", "bottom": "8", "left": "16", "isLinked": false },
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "24", "left": "0", "isLinked": false }
+              }
+            },
+            {
+              "id": "hero_headline_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "When it hurts - here is step by step.",
+                "header_size": "h1",
+                "title_color": "#ffffff",
+                "align": "left",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 56 },
+                "typography_font_size_mobile": { "unit": "px", "size": 36 },
+                "typography_font_weight": "600",
+                "typography_line_height": { "unit": "em", "size": 1.1 },
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "20", "left": "0", "isLinked": false }
+              }
+            },
+            {
+              "id": "hero_subheadline_en",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p>Free guide: 3 mistakes that prolong the pain. Enter your email and receive it now.</p>",
+                "text_color": "rgba(255,255,255,0.9)",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 18 },
+                "typography_font_size_mobile": { "unit": "px", "size": 16 },
+                "typography_line_height": { "unit": "em", "size": 1.6 },
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "32", "left": "0", "isLinked": false }
+              }
+            },
+            {
+              "id": "hero_form_en",
+              "elType": "widget",
+              "widgetType": "html",
+              "settings": {
+                "html": "<form id='elementor-lead-form' style='display: flex; flex-direction: row; gap: 12px; max-width: 512px; flex-wrap: wrap; margin-bottom: 8px;'><input type='email' required placeholder='Enter your email' name='email' style='flex: 1; min-width: 200px; padding: 16px 20px; border-radius: 4px; border: none; font-size: 16px; color: #111111; outline: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);' /><button type='submit' style='background-color: #1a4d2e; color: #ffffff; font-weight: 600; padding: 16px 28px; border-radius: 4px; border: none; cursor: pointer; transition: background-color 0.2s;' onmouseover=\"this.style.backgroundColor='#2d7a47'\" onmouseout=\"this.style.backgroundColor='#1a4d2e'\">Get free guide -></button></form><div id='elementor-form-msg' style='display: none; color: #74c69d; font-size: 14px; margin-top: 8px; font-weight: 500;'></div><script>document.getElementById('elementor-lead-form').addEventListener('submit', function(e){ e.preventDefault(); var email = e.target.email.value; var msg = document.getElementById('elementor-form-msg'); msg.style.display = 'block'; msg.style.color = '#ffffff'; msg.innerText = 'Sending...'; fetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, lang: 'en' }) }).then(function(res){ if(res.ok){ msg.innerText = 'Sent! Check your email for the free guide.'; msg.style.color = '#74c69d'; e.target.reset(); } else { msg.innerText = 'Something went wrong. Please check your email and try again.'; msg.style.color = '#ff8787'; } }).catch(function(){ msg.innerText = 'Something went wrong. Please check your email and try again.'; msg.style.color = '#ff8787'; }); });</script>"
+              }
+            },
+            {
+              "id": "hero_note_en",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='color: rgba(255,255,255,0.8); font-size: 14px;'>Free | Anonymous | No credit card</p>"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "social_proof_section_en",
+      "elType": "section",
+      "settings": {
+        "background_background": "classic",
+        "background_color": "#0d2e1c",
+        "padding": {
+          "unit": "px",
+          "top": "48",
+          "right": "24",
+          "bottom": "48",
+          "left": "24",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "social_proof_col_1_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 33.333
+          },
+          "elements": [
+            {
+              "id": "social_proof_title_1_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "Psychologist verified",
+                "header_size": "strong",
+                "title_color": "#ffffff",
+                "align": "center",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 18 },
+                "typography_font_weight": "600",
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "4", "left": "0", "isLinked": false }
+              }
+            },
+            {
+              "id": "social_proof_subtitle_1_en",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='text-align: center; color: rgba(255,255,255,0.75); font-size: 14px;'>Evidence-based content</p>"
+              }
+            }
+          ]
+        },
+        {
+          "id": "social_proof_col_2_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 33.333
+          },
+          "elements": [
+            {
+              "id": "social_proof_title_2_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "21-day program",
+                "header_size": "strong",
+                "title_color": "#ffffff",
+                "align": "center",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 18 },
+                "typography_font_weight": "600",
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "4", "left": "0", "isLinked": false }
+              }
+            },
+            {
+              "id": "social_proof_subtitle_2_en",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='text-align: center; color: rgba(255,255,255,0.75); font-size: 14px;'>One email per day</p>"
+              }
+            }
+          ]
+        },
+        {
+          "id": "social_proof_col_3_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 33.333
+          },
+          "elements": [
+            {
+              "id": "social_proof_title_3_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "Anonymous",
+                "header_size": "strong",
+                "title_color": "#ffffff",
+                "align": "center",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 18 },
+                "typography_font_weight": "600",
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "4", "left": "0", "isLinked": false }
+              }
+            },
+            {
+              "id": "social_proof_subtitle_3_en",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='text-align: center; color: rgba(255,255,255,0.75); font-size: 14px;'>Nobody knows. Only you.</p>"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "programs_label_section_en",
+      "elType": "section",
+      "settings": {
+        "background_background": "classic",
+        "background_color": "#ffffff",
+        "padding": {
+          "unit": "px",
+          "top": "96",
+          "right": "24",
+          "bottom": "0",
+          "left": "24",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "programs_label_col_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 100
+          },
+          "elements": [
+            {
+              "id": "programs_label_heading_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "Programs",
+                "header_size": "span",
+                "title_color": "#2d7a47",
+                "align": "left",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 12 },
+                "typography_font_weight": "700",
+                "typography_text_transform": "uppercase",
+                "typography_letter_spacing": { "unit": "px", "size": 2 },
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "32", "left": "0", "isLinked": false }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "programs_cards_section_en",
+      "elType": "section",
+      "settings": {
+        "background_background": "classic",
+        "background_color": "#ffffff",
+        "padding": {
+          "unit": "px",
+          "top": "0",
+          "right": "24",
+          "bottom": "96",
+          "left": "24",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "program_card_1_col_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 50,
+            "background_background": "classic",
+            "background_color": "#f0faf3",
+            "border_border": "solid",
+            "border_width": { "unit": "px", "top": "3", "right": "1", "bottom": "1", "left": "1", "isLinked": false },
+            "border_color": "#1a4d2e",
+            "border_radius": { "unit": "px", "top": "8", "right": "8", "bottom": "8", "left": "8", "isLinked": true },
+            "padding": { "unit": "px", "top": "48", "right": "40", "bottom": "48", "left": "40", "isLinked": true }
+          },
+          "elements": [
+            {
+              "id": "card1_icon_en",
+              "elType": "widget",
+              "widgetType": "html",
+              "settings": {
+                "html": "<svg style='width: 44px; height: 44px; margin-bottom: 20px; color: #1a4d2e;' viewBox='0 0 48 48' fill='none' aria-hidden='true'><path d='M12 34C21 33 33 25 38 10C23 12 14 21 12 34Z' fill='currentColor' opacity='0.22' /><path d='M12 36C19 28 27 22 38 10' stroke='currentColor' stroke-width='3' stroke-linecap='round' /><path d='M14 36C20 38 29 36 35 29' stroke='currentColor' stroke-width='3' stroke-linecap='round' /></svg>"
+              }
+            },
+            {
+              "id": "card1_title_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "After a breakup",
+                "header_size": "h3",
+                "title_color": "#111111",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 24 },
+                "typography_font_weight": "600",
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "8", "left": "0", "isLinked": false }
+              }
+            },
+            {
+              "id": "card1_desc_en",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='color: #4b5563; font-size: 16px; margin-bottom: 32px;'>When thoughts of them won't go away.</p>"
+              }
+            },
+            {
+              "id": "card1_button_en",
+              "elType": "widget",
+              "widgetType": "button",
+              "settings": {
+                "text": "Start program ->",
+                "link": {
+                  "url": "https://buy.stripe.com/REPLACE_ENGLISH_LINK",
+                  "is_external": "true",
+                  "nofollow": "true"
+                },
+                "align": "justify",
+                "button_text_color": "#ffffff",
+                "background_color": "#1a4d2e",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 16 },
+                "typography_font_weight": "600",
+                "border_radius": { "unit": "px", "top": "6", "right": "6", "bottom": "6", "left": "6", "isLinked": true },
+                "padding": { "unit": "px", "top": "16", "right": "24", "bottom": "16", "left": "24", "isLinked": false }
+              }
+            }
+          ]
+        },
+        {
+          "id": "program_card_2_col_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 50,
+            "background_background": "classic",
+            "background_color": "#fafafa",
+            "border_border": "solid",
+            "border_width": { "unit": "px", "top": "3", "right": "1", "bottom": "1", "left": "1", "isLinked": false },
+            "border_color": "#e2e8f0",
+            "border_radius": { "unit": "px", "top": "8", "right": "8", "bottom": "8", "left": "8", "isLinked": true },
+            "padding": { "unit": "px", "top": "48", "right": "40", "bottom": "48", "left": "40", "isLinked": true },
+            "opacity": { "size": 0.7 }
+          },
+          "elements": [
+            {
+              "id": "card2_icon_en",
+              "elType": "widget",
+              "widgetType": "html",
+              "settings": {
+                "html": "<svg style='width: 44px; height: 44px; margin-bottom: 20px; color: #9ca3af;' viewBox='0 0 48 48' fill='none' aria-hidden='true'><path d='M31 8C24 11 19 18 19 26C19 34 25 40 33 41C30 44 26 46 21 46C11 46 3 38 3 28C3 18 11 10 21 10C25 10 28 11 31 8Z' fill='currentColor' opacity='0.28' /><path d='M34 14L35.5 17L39 17.5L36.5 20L37 23.5L34 22L31 23.5L31.5 20L29 17.5L32.5 17L34 14Z' fill='currentColor' /></svg>"
+              }
+            },
+            {
+              "id": "card2_title_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "Insomnia",
+                "header_size": "h3",
+                "title_color": "#111111",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 24 },
+                "typography_font_weight": "600",
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "8", "left": "0", "isLinked": false }
+              }
+            },
+            {
+              "id": "card2_desc_en",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='color: #4b5563; font-size: 16px; margin-bottom: 32px;'>Your path to restful sleep.</p>"
+              }
+            },
+            {
+              "id": "card2_button_en",
+              "elType": "widget",
+              "widgetType": "button",
+              "settings": {
+                "text": "Coming soon",
+                "align": "justify",
+                "button_text_color": "#6b7280",
+                "background_color": "#e5e7eb",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 16 },
+                "typography_font_weight": "600",
+                "border_radius": { "unit": "px", "top": "6", "right": "6", "bottom": "6", "left": "6", "isLinked": true },
+                "padding": { "unit": "px", "top": "16", "right": "24", "bottom": "16", "left": "24", "isLinked": false }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "steps_section_en",
+      "elType": "section",
+      "settings": {
+        "background_background": "classic",
+        "background_color": "#f8fdf9",
+        "padding": {
+          "unit": "px",
+          "top": "96",
+          "right": "24",
+          "bottom": "96",
+          "left": "24",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "steps_header_col_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 100
+          },
+          "elements": [
+            {
+              "id": "steps_label_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "How it works",
+                "header_size": "span",
+                "title_color": "#2d7a47",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 12 },
+                "typography_font_weight": "700",
+                "typography_text_transform": "uppercase",
+                "typography_letter_spacing": { "unit": "px", "size": 2 },
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "40", "left": "0", "isLinked": false }
+              }
+            }
+          ]
+        },
+        {
+          "id": "step_1_col_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 33.333
+          },
+          "elements": [
+            {
+              "id": "step1_html_en",
+              "elType": "widget",
+              "widgetType": "html",
+              "settings": {
+                "html": "<div style='display: flex; align-items: start; gap: 20px;'><div style='width: 48px; height: 48px; border-radius: 50%; background-color: #1a4d2e; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; flex-shrink: 0;'>1</div><div><h4 style='font-size: 18px; font-weight: 600; margin: 0 0 4px 0; color: #111111;'>Enter your email</h4><p style='color: #4b5563; font-size: 14px; margin: 0; line-height: 1.6;'>Get the free guide instantly.</p></div></div>"
+              }
+            }
+          ]
+        },
+        {
+          "id": "step_2_col_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 33.333
+          },
+          "elements": [
+            {
+              "id": "step2_html_en",
+              "elType": "widget",
+              "widgetType": "html",
+              "settings": {
+                "html": "<div style='display: flex; align-items: start; gap: 20px;'><div style='width: 48px; height: 48px; border-radius: 50%; background-color: #1a4d2e; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; flex-shrink: 0;'>2</div><div><h4 style='font-size: 18px; font-weight: 600; margin: 0 0 4px 0; color: #111111;'>Read it</h4><p style='color: #4b5563; font-size: 14px; margin: 0; line-height: 1.6;'>5 minutes. 3 mistakes you're probably making.</p></div></div>"
+              }
+            }
+          ]
+        },
+        {
+          "id": "step_3_col_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 33.333
+          },
+          "elements": [
+            {
+              "id": "step3_html_en",
+              "elType": "widget",
+              "widgetType": "html",
+              "settings": {
+                "html": "<div style='display: flex; align-items: start; gap: 20px;'><div style='width: 48px; height: 48px; border-radius: 50%; background-color: #1a4d2e; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; flex-shrink: 0;'>3</div><div><h4 style='font-size: 18px; font-weight: 600; margin: 0 0 4px 0; color: #111111;'>Start the 21-day program</h4><p style='color: #4b5563; font-size: 14px; margin: 0; line-height: 1.6;'>EUR 39.90. One email per day. Step by step.</p></div></div>"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cta_section_en",
+      "elType": "section",
+      "settings": {
+        "background_background": "classic",
+        "background_color": "#1a4d2e",
+        "padding": {
+          "unit": "px",
+          "top": "96",
+          "right": "24",
+          "bottom": "96",
+          "left": "24",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "cta_col_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 100
+          },
+          "elements": [
+            {
+              "id": "cta_title_en",
+              "elType": "widget",
+              "widgetType": "heading",
+              "settings": {
+                "title": "21-day breakup recovery program",
+                "header_size": "h2",
+                "title_color": "#ffffff",
+                "align": "center",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 36 },
+                "typography_font_size_mobile": { "unit": "px", "size": 28 },
+                "typography_font_weight": "600",
+                "_margin": { "unit": "px", "top": "0", "right": "0", "bottom": "16", "left": "0", "isLinked": false }
+              }
+            },
+            {
+              "id": "cta_pricing_en",
+              "elType": "widget",
+              "widgetType": "html",
+              "settings": {
+                "html": "<div style='display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; font-size: 24px; color: #ffffff; margin-bottom: 32px;'><span style='text-decoration: line-through; opacity: 0.6;'>EUR 110.90</span><span style='font-size: 36px; font-weight: bold;'>EUR 39.90</span><span style='opacity: 0.9; font-size: 18px;'>| Instant access</span></div>"
+              }
+            },
+            {
+              "id": "cta_button_en",
+              "elType": "widget",
+              "widgetType": "button",
+              "settings": {
+                "text": "Start now ->",
+                "link": {
+                  "url": "https://buy.stripe.com/REPLACE_ENGLISH_LINK",
+                  "is_external": "true",
+                  "nofollow": "true"
+                },
+                "align": "center",
+                "button_text_color": "#1a4d2e",
+                "background_color": "#ffffff",
+                "typography_typography": "custom",
+                "typography_font_size": { "unit": "px", "size": 18 },
+                "typography_font_weight": "600",
+                "border_radius": { "unit": "px", "top": "8", "right": "8", "bottom": "8", "left": "8", "isLinked": true },
+                "padding": { "unit": "px", "top": "16", "right": "32", "bottom": "16", "left": "32", "isLinked": false }
+              }
+            },
+            {
+              "id": "cta_note_en",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='text-align: center; color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 20px;'>Anonymous | Instant access | No risk</p>"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "footer_section_en",
+      "elType": "section",
+      "settings": {
+        "background_background": "classic",
+        "background_color": "#e8f5ed",
+        "border_border": "solid",
+        "border_width": { "unit": "px", "top": "1", "right": "0", "bottom": "0", "left": "0", "isLinked": false },
+        "border_color": "#c8e6d0",
+        "padding": {
+          "unit": "px",
+          "top": "48",
+          "right": "24",
+          "bottom": "48",
+          "left": "24",
+          "isLinked": false
+        }
+      },
+      "elements": [
+        {
+          "id": "footer_col_en",
+          "elType": "column",
+          "settings": {
+            "_column_size": 100
+          },
+          "elements": [
+            {
+              "id": "footer_top_html_en",
+              "elType": "widget",
+              "widgetType": "html",
+              "settings": {
+                "html": "<div style='display: flex; flex-direction: row; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 16px;'><span style='font-size: 18px; font-weight: bold; color: #1a4d2e;'>innerfirstaid.com</span><span style='font-size: 14px; color: #6b7280;'>Copyright 2026 Inner First Aid</span></div>"
+              }
+            },
+            {
+              "id": "footer_links_html_en",
+              "elType": "widget",
+              "widgetType": "html",
+              "settings": {
+                "html": "<div style='font-size: 14px; margin-bottom: 16px;'><a href='/privacy-policy' style='color: #1a4d2e; font-weight: 500; text-decoration: none;'>Privacy Policy</a><span style='color: #9ca3af; margin: 0 8px;'>|</span><a href='/terms-of-service' style='color: #1a4d2e; font-weight: 500; text-decoration: none;'>Terms of Service</a></div>"
+              }
+            },
+            {
+              "id": "footer_disclaimer_en",
+              "elType": "widget",
+              "widgetType": "text-editor",
+              "settings": {
+                "editor": "<p style='color: #6b7280; font-size: 12px; line-height: 1.6; max-width: 576px;'>This program is for educational purposes only. It is not a substitute for professional support.</p>"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "page_settings": []
+}
