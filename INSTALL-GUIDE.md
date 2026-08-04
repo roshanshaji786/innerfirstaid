@@ -191,6 +191,7 @@ theme and plugin, and builds all pages automatically.
 | --- | --- |
 | "The package could not be installed" | Make sure you upload the ZIPs from `dist/` — never re-zip the extracted folder with a different structure. |
 | Pages show old design | Clear cache: Settings → (caching plugin) → purge, or hard refresh (Ctrl+Shift+R). |
+| **"Edit with Elementor" stuck on "loading" forever** | Update the theme to v1.0.2+ (the old theme blocked Elementor's preview iframe with a security header — fixed). Then hard-refresh. If still stuck: (1) raise PHP memory to at least 128M in `wp-config.php`: `define('WP_MEMORY_LIMIT','256M');` (2) deactivate other plugins except Elementor + IFA Core to rule out a conflict, (3) purge server/caching-plugin cache. |
 | Buttons greyed out | Stripe link is missing or not a `https://buy.stripe.com/...` link → re-check Step 6. |
 | `yoursite.com/sl/` shows 404 | Re-run **"Build pages now"** in Settings → Inner First Aid. |
 | Lead form says error | Check Settings → Inner First Aid → notification email is valid (optional) — and that you're not submitting the same email twice from one IP too fast (10/hour limit). |

@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'IFA_THEME_VERSION', '1.0.1' );
+define( 'IFA_THEME_VERSION', '1.0.2' );
 define( 'IFA_THEME_DIR', get_template_directory() );
 define( 'IFA_THEME_URI', get_template_directory_uri() );
 
@@ -176,7 +176,10 @@ add_action( 'wp_footer', 'ifa_theme_disable_embeds' );
  * @param WP_Scripts $scripts Scripts object.
  */
 function ifa_theme_remove_jquery_migrate( $scripts ) {
-	if ( ! is_admin() && isset( $scripts->registered['jquery'] ) ) {
+	if ( is_admin() || isset( $_GET['elementor-preview'] ) || isset( $_GET['elementor'] ) ) {
+		return; // keep jQuery Migrate in the Elementor editor/preview.
+	}
+	if ( isset( $scripts->registered['jquery'] ) ) {
 		$script = $scripts->registered['jquery'];
 		if ( $script->deps ) {
 			$script->deps = array_diff( $script->deps, array( 'jquery-migrate' ) );
@@ -187,13 +190,17 @@ add_action( 'wp_default_scripts', 'ifa_theme_remove_jquery_migrate' );
 
 /**
  * Basic security headers — works on any host (no .htaccess needed).
+ * NOTE: Elementor's editor renders the page preview inside a same-origin
+ * iframe, so for editor/preview requests we must allow same-origin framing
+ * (SAMEORIGIN) instead of DENY — otherwise the editor hangs on "loading".
  */
 function ifa_theme_security_headers() {
 	if ( headers_sent() ) {
 		return;
 	}
+	$is_editor_preview = isset( $_GET['elementor-preview'] ) || isset( $_GET['elementor'] );
 	header( 'X-Content-Type-Options: nosniff' );
-	header( 'X-Frame-Options: DENY' );
+	header( $is_editor_preview ? 'X-Frame-Options: SAMEORIGIN' : 'X-Frame-Options: DENY' );
 	header( 'Referrer-Policy: strict-origin-when-cross-origin' );
 	header( 'Permissions-Policy: camera=(), microphone=(), geolocation=()' );
 }
