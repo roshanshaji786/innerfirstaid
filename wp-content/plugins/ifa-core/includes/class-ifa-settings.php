@@ -58,6 +58,11 @@ class IFA_Settings {
 			'ga_id'                  => '',
 			'pixel_id'               => '',
 			'lead_notify_email'      => '',
+			'guide_pdf_url'          => '',
+			'guide_subject_en'       => 'Your free guide: 3 mistakes that prolong the pain',
+			'guide_subject_sl'       => 'Tvoj brezplacni vodic: 3 napake, ki podaljsajo bolecino',
+			'guide_message_en'       => "Hi,\n\nthanks for signing up. Your free guide is attached.\n\nBest,\nthe Inner First Aid team",
+			'guide_message_sl'       => "Zivjo,\n\nhvala, da si se prijavil/a. V prilogi je tvoj brezplacni vodic.\n\nLep pozdrav,\nekipa Inner First Aid",
 			'cookie_text_en'         => 'We use cookies to improve your experience and analyze site traffic.',
 			'cookie_text_sl'         => 'Uporabljamo piskotke za izboljsanje uporabniske izkusnje.',
 			'cookie_accept_en'       => 'Accept',
@@ -112,7 +117,7 @@ class IFA_Settings {
 
 		add_settings_section( 'ifa_payments', __( 'Payments (Stripe)', 'ifa-core' ), array( $this, 'section_payments' ), 'ifa-settings' );
 		add_settings_section( 'ifa_analytics', __( 'Analytics (loaded only after cookie consent)', 'ifa-core' ), '__return_false', 'ifa-settings' );
-		add_settings_section( 'ifa_leads', __( 'Leads', 'ifa-core' ), '__return_false', 'ifa-settings' );
+		add_settings_section( 'ifa_leads', __( 'Leads & free guide', 'ifa-core' ), array( $this, 'section_leads' ), 'ifa-settings' );
 		add_settings_section( 'ifa_branding', __( 'Header & footer texts', 'ifa-core' ), '__return_false', 'ifa-settings' );
 		add_settings_section( 'ifa_cookie', __( 'Cookie banner', 'ifa-core' ), '__return_false', 'ifa-settings' );
 		add_settings_section( 'ifa_links', __( 'Page URLs', 'ifa-core' ), '__return_false', 'ifa-settings' );
@@ -125,6 +130,13 @@ class IFA_Settings {
 		$this->add_field( 'ifa_analytics', 'pixel_id', __( 'Meta Pixel ID (e.g. 1234567890)', 'ifa-core' ), 'text' );
 
 		$this->add_field( 'ifa_leads', 'lead_notify_email', __( 'Email to notify on new lead (optional)', 'ifa-core' ), 'email' );
+
+		// Free guide delivery.
+		$this->add_field( 'ifa_leads', 'guide_subject_en', __( 'Guide email subject (EN)', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_leads', 'guide_subject_sl', __( 'Guide email subject (SL)', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_leads', 'guide_message_en', __( 'Guide email message (EN)', 'ifa-core' ), 'textarea' );
+		$this->add_field( 'ifa_leads', 'guide_message_sl', __( 'Guide email message (SL)', 'ifa-core' ), 'textarea' );
+		$this->add_field( 'ifa_leads', 'guide_pdf_url', __( 'Guide PDF URL (upload the PDF in Media → Library, copy its URL, paste here)', 'ifa-core' ), 'text' );
 
 		$this->add_field( 'ifa_branding', 'header_logo_text', __( 'Logo text', 'ifa-core' ), 'text' );
 		$this->add_field( 'ifa_branding', 'header_cta_en', __( 'Header button (EN)', 'ifa-core' ), 'text' );
@@ -199,6 +211,19 @@ class IFA_Settings {
 	}
 
 	/**
+	 * Leads & free guide section help.
+	 */
+	public function section_leads() {
+		echo '<p class="description">' . esc_html__( 'The guide email (with the PDF attached) is sent automatically to every lead after they submit the form.', 'ifa-core' ) . '</p>';
+		echo '<ol class="description" style="list-style:decimal;margin-left:1.2em;">';
+		echo '<li>' . esc_html__( 'Upload the guide PDF: Media → Add New (or drag & drop).', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Open the file in the Media Library and copy its URL (ends with .pdf).', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Paste it into "Guide PDF URL" below and save. Emails with the attachment are sent automatically from now on.', 'ifa-core' ) . '</li>';
+		echo '</ol>';
+		echo '<p class="description">' . esc_html__( 'Tip: install a free SMTP plugin (WP Mail SMTP / FluentSMTP) on the host so the emails land in the inbox, not spam.', 'ifa-core' ) . '</p>';
+	}
+
+	/**
 	 * Payments section help.
 	 */
 	public function section_payments() {
@@ -221,6 +246,7 @@ class IFA_Settings {
 			'footer_privacy_en', 'footer_privacy_sl', 'footer_terms_en', 'footer_terms_sl',
 			'cookie_text_en', 'cookie_text_sl', 'cookie_accept_en', 'cookie_accept_sl',
 			'cookie_decline_en', 'cookie_decline_sl', 'ga_id', 'pixel_id',
+			'guide_subject_en', 'guide_subject_sl', 'guide_message_en', 'guide_message_sl',
 		);
 		foreach ( $texts as $k ) {
 			if ( isset( $input[ $k ] ) ) {
@@ -228,7 +254,7 @@ class IFA_Settings {
 			}
 		}
 
-		$urls = array( 'stripe_en', 'stripe_sl_f', 'stripe_sl_m', 'en_url', 'sl_url', 'privacy_url', 'terms_url' );
+		$urls = array( 'stripe_en', 'stripe_sl_f', 'stripe_sl_m', 'en_url', 'sl_url', 'privacy_url', 'terms_url', 'guide_pdf_url' );
 		foreach ( $urls as $k ) {
 			if ( isset( $input[ $k ] ) ) {
 				$out[ $k ] = esc_url_raw( trim( $input[ $k ] ) );

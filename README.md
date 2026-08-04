@@ -16,6 +16,7 @@ after setup.
 | --- | --- |
 | 🏠 Landing page (EN + SL) | Built as Elementor pages (`.home` + `/sl/`) — open in Elementor editor and change anything |
 | ✉️ Lead capture form | AJAX → stored in WordPress (custom table), admin list at **IFA Leads**, CSV export, optional email notification, honeypot + rate limiting (10/hour/IP) + duplicate handling |
+| 📕 **Free guide auto-delivery** | Every lead automatically receives the guide PDF by email (EN or SL based on the form language). Set the PDF in **Settings → Inner First Aid → Leads & free guide** (subject + message editable per language) |
 | 💳 Stripe payment buttons | Payment links set in **Settings → Inner First Aid**. Buttons auto-activate when a valid `https://buy.stripe.com/...` link is set; until then they render disabled ("Coming soon" style) |
 | 🌍 Language switch | EN ↔ SL pages, per-language header/footer/cookie texts, correct `lang`/hreflang attributes |
 | 🍪 Cookie consent | Banner (EN/SL texts, editable in settings) → consent stored in `localStorage`; GA4 + Meta Pixel load **only after consent** |

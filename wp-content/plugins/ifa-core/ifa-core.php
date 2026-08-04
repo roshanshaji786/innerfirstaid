@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Inner First Aid Core
  * Description: Core functionality for Inner First Aid: Elementor widgets, lead capture (with admin list & CSV export), Stripe payment links, cookie consent with analytics, multi-language (EN/SL) and one-click page builder.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Inner First Aid
  * Text Domain: ifa-core
  * Requires at least: 5.2
@@ -29,7 +29,7 @@ if ( version_compare( PHP_VERSION, '7.2', '<' ) ) {
 	return;
 }
 
-define( 'IFA_CORE_VERSION', '1.0.2' );
+define( 'IFA_CORE_VERSION', '1.0.3' );
 define( 'IFA_CORE_FILE', __FILE__ );
 define( 'IFA_CORE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IFA_CORE_URL', plugin_dir_url( __FILE__ ) );

@@ -122,11 +122,57 @@ class IFA_Leads {
 		if ( false === $inserted ) {
 			// Duplicate email is not an error — the lead already exists.
 			$this->notify( strtolower( $email ), $lang, $source, true );
+			$this->send_guide( strtolower( $email ), $lang );
 			wp_send_json_success( array( 'message' => 'exists' ), 200 );
 		}
 
 		$this->notify( strtolower( $email ), $lang, $source, false );
+		$this->send_guide( strtolower( $email ), $lang );
 		wp_send_json_success( array( 'message' => 'created' ), 201 );
+	}
+
+	/**
+	 * Send the free guide (PDF) to the lead automatically.
+	 *
+	 * @param string $email Lead email.
+	 * @param string $lang  Language.
+	 */
+	public function send_guide( $email, $lang ) {
+		$suffix = 'sl' === $lang ? 'sl' : 'en';
+
+		$subject = ifa_get_option( 'guide_subject_' . $suffix, '' );
+		if ( '' === $subject ) {
+			$subject = 'sl' === $suffix
+				? 'Tvoj brezplacni vodic: 3 napake, ki podaljsajo bolecino'
+				: 'Your free guide: 3 mistakes that prolong the pain';
+		}
+
+		$message = ifa_get_option( 'guide_message_' . $suffix, '' );
+		if ( '' === $message ) {
+			$message = 'sl' === $suffix
+				? "Zivjo,\n\nhvala, da si se prijavil/a. V prilogi je tvoj brezplacni vodic.\n\nLep pozdrav,\nekipa Inner First Aid"
+				: "Hi,\n\nthanks for signing up. Your free guide is attached.\n\nBest,\nthe Inner First Aid team";
+		}
+		$message = nl2br( esc_html( $message ) );
+
+		// Resolve the PDF path from the configured URL.
+		$attachment = '';
+		$pdf_url    = ifa_get_option( 'guide_pdf_url', '' );
+		if ( '' !== $pdf_url ) {
+			$upload_dir = wp_get_upload_dir();
+			$base       = isset( $upload_dir['baseurl'] ) ? trailingslashit( $upload_dir['baseurl'] ) : '';
+			$path       = isset( $upload_dir['basedir'] ) ? trailingslashit( $upload_dir['basedir'] ) : '';
+			if ( $base && 0 === strpos( $pdf_url, $base ) ) {
+				$attachment = $path . ltrim( substr( $pdf_url, strlen( $base ) ), '/' );
+				if ( ! file_exists( $attachment ) ) {
+					$attachment = '';
+				}
+			}
+		}
+
+		$to      = $email;
+		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+		wp_mail( $to, $subject, $message, $headers, $attachment ? array( $attachment ) : array() );
 	}
 
 	/**
@@ -228,10 +274,30 @@ class IFA_Leads {
 		);
 
 		$export_url = wp_nonce_url( admin_url( 'admin-post.php?action=ifa_export_leads' ), 'ifa_export_leads' );
+
+		$guide_ok = '' !== ifa_get_option( 'guide_pdf_url', '' );
 		?>
 		<div class="wrap">
 			<h1 class="wp-heading-inline"><?php esc_html_e( 'Leads', 'ifa-core' ); ?></h1>
 			<a href="<?php echo esc_url( $export_url ); ?>" class="page-title-action"><?php esc_html_e( 'Export CSV', 'ifa-core' ); ?></a>
+
+			<div class="notice <?php echo $guide_ok ? 'notice-success' : 'notice-warning'; ?>" style="margin:14px 0 8px;">
+				<p>
+					<strong><?php esc_html_e( 'Free guide auto-delivery', 'ifa-core' ); ?>:</strong>
+					<?php if ( $guide_ok ) : ?>
+						<?php esc_html_e( 'Active — every new lead automatically receives the guide PDF by email.', 'ifa-core' ); ?>
+					<?php else : ?>
+						<?php esc_html_e( 'Not configured yet.', 'ifa-core' ); ?>
+						<?php
+						printf(
+							/* translators: %s: settings URL. */
+							wp_kses_post( 'Upload your guide PDF in <a href="%s">Settings → Inner First Aid</a> and the email will be sent automatically on every signup.' ),
+							esc_url( admin_url( 'options-general.php?page=ifa-settings' ) )
+						);
+						?>
+					<?php endif; ?>
+				</p>
+			</div>
 			<p>
 				<?php
 				printf(

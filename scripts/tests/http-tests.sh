@@ -86,6 +86,31 @@ check "honeypot rejected"    "$([ "$code" = "200" ] && [ "$(grep -c 'created' /t
 code=$(curl -s -o /tmp/ifa_lead.json -w "%{http_code}" -X POST "$AJ" -d "action=ifa_submit_lead&nonce=badnonce&email=x@example.com")
 check "bad nonce -> 403"     "$([ "$code" = "403" ]; echo $?)" "(got $code)"
 
+echo "== Free guide auto-delivery =="
+GUIDE_CHECK=""
+if [ -n "$WP_PATH" ] && [ -f "$WP_PATH/wp-load.php" ]; then
+  PHP_BIN="$(command -v php || command -v php-wasm-cli || true)"
+  if [ -n "$PHP_BIN" ]; then
+    GUIDE_CHECK="$(cd "$WP_PATH" && "$PHP_BIN" -r '
+      $_SERVER["HTTP_HOST"]="x"; $_SERVER["REQUEST_URI"]="/";
+      require "wp-load.php";
+      $up = wp_get_upload_dir();
+      $file = $up["path"] . "/ifa-test-guide.pdf";
+      file_put_contents($file, "%PDF-1.4 test");
+      ifa_update_option("guide_pdf_url", $up["url"] . "/ifa-test-guide.pdf");
+      ifa_update_option("guide_subject_en", "TEST: your free guide");
+      $GLOBALS["mails"] = array();
+      add_filter("wp_mail", function($a){ $GLOBALS["mails"][]=$a; return array_merge($a,array("to"=>"noop@test.local")); }, 1);
+      IFA_Leads::instance()->send_guide("guide-check@example.com", "en");
+      $m = isset($GLOBALS["mails"][0]) ? $GLOBALS["mails"][0] : array();
+      echo (($m["to"] ?? "") === "guide-check@example.com" ? "to:OK " : "to:FAIL ");
+      echo (isset($m["attachments"][0]) && file_exists($m["attachments"][0]) ? "attach:OK " : "attach:FAIL ");
+      echo (strpos($m["subject"], "TEST") !== false ? "subject:OK" : "subject:FAIL");
+    ' 2>/dev/null)"
+  fi
+fi
+check "guide email sent with PDF attached" "$([ "$GUIDE_CHECK" = "to:OK attach:OK subject:OK" ]; echo $?)" "(got: $GUIDE_CHECK)"
+
 echo "== Admin =="
 curl -s -c "$COOKIES" -b "$COOKIES" -L \
   -d "log=$ADMIN_USER&pwd=$ADMIN_PASS&wp-submit=Log+In&redirect_to=$BASE/wp-admin/&testcookie=1" \

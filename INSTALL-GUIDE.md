@@ -118,6 +118,23 @@ no code, no risk of breaking the site.
 **Where captured emails go:** the **"IFA Leads"** menu in your dashboard shows
 every email, with **Export CSV** and delete buttons.
 
+### 📕 Send the free guide PDF automatically (optional but recommended)
+
+The site promises "Get free guide →" — make it real in 3 steps:
+
+1. **Media → Add New** → upload your guide PDF (e.g. `inner-first-aid-guide.pdf`)
+2. In the Media Library, click the PDF → copy its **URL** (ends in `.pdf`)
+3. **Settings → Inner First Aid** → paste it into **"Guide PDF URL"** → **Save**
+
+From then on, every lead automatically gets an email (in their language) with
+the PDF attached. You can edit the email subject/message per language in the
+same settings page.
+
+> 📌 **Important for deliverability:** install a free SMTP plugin
+> (WP Mail SMTP or FluentSMTP) and connect it to a mailbox so the emails land
+> in the inbox instead of spam. On most hosts, without an SMTP plugin emails
+> may not send at all.
+
 ---
 
 ## ✅ Checklist
