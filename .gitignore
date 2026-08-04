@@ -17,3 +17,7 @@ wp-content/uploads/
 .env
 .env.local
 wp-config.php
+
+# Python build artifacts (guide PDF builder)
+__pycache__/
+*.pyc

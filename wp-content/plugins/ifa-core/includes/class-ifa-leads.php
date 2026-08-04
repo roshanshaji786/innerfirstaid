@@ -155,9 +155,13 @@ class IFA_Leads {
 		}
 		$message = nl2br( esc_html( $message ) );
 
-		// Resolve the PDF path from the configured URL.
+		// Resolve the PDF path from the configured URL (per-language file,
+		// falling back to the single default).
 		$attachment = '';
-		$pdf_url    = ifa_get_option( 'guide_pdf_url', '' );
+		$pdf_url    = ifa_get_option( 'guide_pdf_url_' . $suffix, '' );
+		if ( '' === $pdf_url ) {
+			$pdf_url = ifa_get_option( 'guide_pdf_url', '' );
+		}
 		if ( '' !== $pdf_url ) {
 			$upload_dir = wp_get_upload_dir();
 			$base       = isset( $upload_dir['baseurl'] ) ? trailingslashit( $upload_dir['baseurl'] ) : '';

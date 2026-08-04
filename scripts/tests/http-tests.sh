@@ -95,21 +95,27 @@ if [ -n "$WP_PATH" ] && [ -f "$WP_PATH/wp-load.php" ]; then
       $_SERVER["HTTP_HOST"]="x"; $_SERVER["REQUEST_URI"]="/";
       require "wp-load.php";
       $up = wp_get_upload_dir();
-      $file = $up["path"] . "/ifa-test-guide.pdf";
-      file_put_contents($file, "%PDF-1.4 test");
-      ifa_update_option("guide_pdf_url", $up["url"] . "/ifa-test-guide.pdf");
+      file_put_contents($up["path"] . "/ifa-guide-en.pdf", "%PDF-1.4 EN test");
+      file_put_contents($up["path"] . "/ifa-guide-sl.pdf", "%PDF-1.4 SL test");
+      ifa_update_option("guide_pdf_url_en", $up["url"] . "/ifa-guide-en.pdf");
+      ifa_update_option("guide_pdf_url_sl", $up["url"] . "/ifa-guide-sl.pdf");
       ifa_update_option("guide_subject_en", "TEST: your free guide");
+      ifa_update_option("guide_subject_sl", "TEST: tvoj vodnik");
       $GLOBALS["mails"] = array();
       add_filter("wp_mail", function($a){ $GLOBALS["mails"][]=$a; return array_merge($a,array("to"=>"noop@test.local")); }, 1);
-      IFA_Leads::instance()->send_guide("guide-check@example.com", "en");
-      $m = isset($GLOBALS["mails"][0]) ? $GLOBALS["mails"][0] : array();
-      echo (($m["to"] ?? "") === "guide-check@example.com" ? "to:OK " : "to:FAIL ");
-      echo (isset($m["attachments"][0]) && file_exists($m["attachments"][0]) ? "attach:OK " : "attach:FAIL ");
-      echo (strpos($m["subject"], "TEST") !== false ? "subject:OK" : "subject:FAIL");
+      IFA_Leads::instance()->send_guide("en-check@example.com", "en");
+      IFA_Leads::instance()->send_guide("sl-check@example.com", "sl");
+      $e = $GLOBALS["mails"][0] ?? array();
+      $s = $GLOBALS["mails"][1] ?? array();
+      $en_ok = (($e["to"] ?? "") === "en-check@example.com") && (basename($e["attachments"][0] ?? "") === "ifa-guide-en.pdf");
+      $sl_ok = (($s["to"] ?? "") === "sl-check@example.com") && (basename($s["attachments"][0] ?? "") === "ifa-guide-sl.pdf");
+      echo ($en_ok ? "en:OK " : "en:FAIL ");
+      echo ($sl_ok ? "sl:OK " : "sl:FAIL ");
+      echo ((strpos($s["subject"] ?? "", "TEST") !== false) ? "subject:OK" : "subject:FAIL");
     ' 2>/dev/null)"
   fi
 fi
-check "guide email sent with PDF attached" "$([ "$GUIDE_CHECK" = "to:OK attach:OK subject:OK" ]; echo $?)" "(got: $GUIDE_CHECK)"
+check "guide email: EN + SL with correct PDF attached" "$([ "$GUIDE_CHECK" = "en:OK sl:OK subject:OK" ]; echo $?)" "(got: $GUIDE_CHECK)"
 
 echo "== Admin =="
 curl -s -c "$COOKIES" -b "$COOKIES" -L \

@@ -59,6 +59,8 @@ class IFA_Settings {
 			'pixel_id'               => '',
 			'lead_notify_email'      => '',
 			'guide_pdf_url'          => '',
+			'guide_pdf_url_en'       => '',
+			'guide_pdf_url_sl'       => '',
 			'guide_subject_en'       => 'Your free guide: 3 mistakes that prolong the pain',
 			'guide_subject_sl'       => 'Tvoj brezplacni vodic: 3 napake, ki podaljsajo bolecino',
 			'guide_message_en'       => "Hi,\n\nthanks for signing up. Your free guide is attached.\n\nBest,\nthe Inner First Aid team",
@@ -136,7 +138,9 @@ class IFA_Settings {
 		$this->add_field( 'ifa_leads', 'guide_subject_sl', __( 'Guide email subject (SL)', 'ifa-core' ), 'text' );
 		$this->add_field( 'ifa_leads', 'guide_message_en', __( 'Guide email message (EN)', 'ifa-core' ), 'textarea' );
 		$this->add_field( 'ifa_leads', 'guide_message_sl', __( 'Guide email message (SL)', 'ifa-core' ), 'textarea' );
-		$this->add_field( 'ifa_leads', 'guide_pdf_url', __( 'Guide PDF URL (upload the PDF in Media → Library, copy its URL, paste here)', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_leads', 'guide_pdf_url_en', __( 'Guide PDF URL — English (upload the PDF in Media → Library, copy its URL, paste here)', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_leads', 'guide_pdf_url_sl', __( 'Guide PDF URL — Slovenian (leave empty to reuse the English one)', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_leads', 'guide_pdf_url', __( 'Fallback guide PDF URL (used when a language has no specific file)', 'ifa-core' ), 'text' );
 
 		$this->add_field( 'ifa_branding', 'header_logo_text', __( 'Logo text', 'ifa-core' ), 'text' );
 		$this->add_field( 'ifa_branding', 'header_cta_en', __( 'Header button (EN)', 'ifa-core' ), 'text' );
@@ -214,11 +218,11 @@ class IFA_Settings {
 	 * Leads & free guide section help.
 	 */
 	public function section_leads() {
-		echo '<p class="description">' . esc_html__( 'The guide email (with the PDF attached) is sent automatically to every lead after they submit the form.', 'ifa-core' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'The guide email (with the PDF attached) is sent automatically to every lead after they submit the form — in their language.', 'ifa-core' ) . '</p>';
 		echo '<ol class="description" style="list-style:decimal;margin-left:1.2em;">';
-		echo '<li>' . esc_html__( 'Upload the guide PDF: Media → Add New (or drag & drop).', 'ifa-core' ) . '</li>';
-		echo '<li>' . esc_html__( 'Open the file in the Media Library and copy its URL (ends with .pdf).', 'ifa-core' ) . '</li>';
-		echo '<li>' . esc_html__( 'Paste it into "Guide PDF URL" below and save. Emails with the attachment are sent automatically from now on.', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Upload the guide PDFs: Media → Add New (or drag & drop).', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Open each file in the Media Library and copy its URL (ends with .pdf).', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Paste the English PDF into "Guide PDF URL — English" and the Slovenian one into "Guide PDF URL — Slovenian", then save. Emails with the attachment are sent automatically from now on.', 'ifa-core' ) . '</li>';
 		echo '</ol>';
 		echo '<p class="description">' . esc_html__( 'Tip: install a free SMTP plugin (WP Mail SMTP / FluentSMTP) on the host so the emails land in the inbox, not spam.', 'ifa-core' ) . '</p>';
 	}
@@ -254,7 +258,7 @@ class IFA_Settings {
 			}
 		}
 
-		$urls = array( 'stripe_en', 'stripe_sl_f', 'stripe_sl_m', 'en_url', 'sl_url', 'privacy_url', 'terms_url', 'guide_pdf_url' );
+		$urls = array( 'stripe_en', 'stripe_sl_f', 'stripe_sl_m', 'en_url', 'sl_url', 'privacy_url', 'terms_url', 'guide_pdf_url', 'guide_pdf_url_en', 'guide_pdf_url_sl' );
 		foreach ( $urls as $k ) {
 			if ( isset( $input[ $k ] ) ) {
 				$out[ $k ] = esc_url_raw( trim( $input[ $k ] ) );

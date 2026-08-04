@@ -118,17 +118,24 @@ no code, no risk of breaking the site.
 **Where captured emails go:** the **"IFA Leads"** menu in your dashboard shows
 every email, with **Export CSV** and delete buttons.
 
-### 📕 Send the free guide PDF automatically (optional but recommended)
+### 📕 Send the free guide PDF automatically (recommended)
 
-The site promises "Get free guide →" — make it real in 3 steps:
+The site promises "Get free guide →" — and the **ready-made production guides
+are already in this repository**:
 
-1. **Media → Add New** → upload your guide PDF (e.g. `inner-first-aid-guide.pdf`)
-2. In the Media Library, click the PDF → copy its **URL** (ends in `.pdf`)
-3. **Settings → Inner First Aid** → paste it into **"Guide PDF URL"** → **Save**
+- `guide/Inner-First-Aid-Guide-EN.pdf` — 10-page English guide (the 3 mistakes, first-aid toolkit, 21-day preview)
+- `guide/Inner-First-Aid-Guide-SL.pdf` — the same, fully in Slovenian
+
+To switch them on (3 steps):
+
+1. **Media → Add New** → upload both PDFs (or drag & drop)
+2. In the Media Library, click each PDF and copy its **URL** (ends in `.pdf`)
+3. **Settings → Inner First Aid** → paste the EN URL into **"Guide PDF URL — English"** and the SL URL into **"Guide PDF URL — Slovenian"** → **Save**
 
 From then on, every lead automatically gets an email (in their language) with
-the PDF attached. You can edit the email subject/message per language in the
-same settings page.
+the correct PDF attached. You can edit the email subject/message per language
+in the same settings page, and regenerate the PDFs any time with
+`python3 guide/build_guide.py`.
 
 > 📌 **Important for deliverability:** install a free SMTP plugin
 > (WP Mail SMTP or FluentSMTP) and connect it to a mailbox so the emails land
