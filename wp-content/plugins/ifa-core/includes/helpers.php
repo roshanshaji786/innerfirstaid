@@ -82,6 +82,24 @@ if ( ! function_exists( 'ifa_is_sl' ) ) {
 }
 
 /**
+ * Is a URL a usable Stripe payment link?
+ * Accepts Payment Links (buy.stripe.com/...) and hosted Checkout sessions
+ * (checkout.stripe.com/c/pay/...).
+ *
+ * @param string $url URL to check.
+ * @return bool
+ */
+if ( ! function_exists( 'ifa_is_valid_stripe_url' ) ) {
+	function ifa_is_valid_stripe_url( $url ) {
+		$url = trim( (string) $url );
+		if ( '' === $url || 'placeholder' === $url || false !== strpos( $url, 'REPLACE' ) ) {
+			return false;
+		}
+		return (bool) preg_match( '#^https://(buy\.stripe\.com/|checkout\.stripe\.com/c/pay/).*#', $url );
+	}
+}
+
+/**
  * Get a valid Stripe payment URL from settings, or ''.
  *
  * @param string $key Option key.
@@ -90,10 +108,7 @@ if ( ! function_exists( 'ifa_is_sl' ) ) {
 if ( ! function_exists( 'ifa_stripe_url' ) ) {
 	function ifa_stripe_url( $key ) {
 		$url = trim( (string) ifa_get_option( $key, '' ) );
-		if ( '' === $url || 'placeholder' === $url || false !== strpos( $url, 'REPLACE' ) ) {
-			return '';
-		}
-		if ( ! preg_match( '#^https://buy\.stripe\.com/.*#', $url ) ) {
+		if ( ! ifa_is_valid_stripe_url( $url ) ) {
 			return '';
 		}
 		return $url;

@@ -60,7 +60,7 @@ if [ -n "$WP_PATH" ] && [ -f "$WP_PATH/wp-load.php" ]; then
       require "wp-load.php";
       if (function_exists("ifa_update_option")) {
         ifa_update_option("stripe_en",  "https://buy.stripe.com/EN123");
-        ifa_update_option("stripe_sl_f","https://buy.stripe.com/SLF456");
+        ifa_update_option("stripe_sl_f","https://checkout.stripe.com/c/pay/SLF456");
         ifa_update_option("stripe_sl_m","https://buy.stripe.com/SLM789");
       }
       global $wpdb;

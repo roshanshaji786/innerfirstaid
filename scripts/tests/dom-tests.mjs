@@ -178,8 +178,8 @@ if (genderToggle) {
   genderToggle.click();
   await sleep(200);
   check('gender options reveal on click', options.hidden === false);
-  const female = sDoc.querySelector('[data-ifa-gender-options] a[href^="https://buy.stripe.com/SLF"]');
-  const male = sDoc.querySelector('[data-ifa-gender-options] a[href^="https://buy.stripe.com/SLM"]');
+  const female = sDoc.querySelector('[data-ifa-gender-options] a[href*="SLF456"]');
+  const male = sDoc.querySelector('[data-ifa-gender-options] a[href*="SLM789"]');
   check('female link -> SLF stripe url', !!female);
   check('male link -> SLM stripe url', !!male);
 }

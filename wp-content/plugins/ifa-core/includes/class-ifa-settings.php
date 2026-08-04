@@ -212,6 +212,19 @@ class IFA_Settings {
 			esc_attr( $name ),
 			esc_attr( $val )
 		);
+
+		// Live status for Stripe link fields.
+		if ( in_array( $key, array( 'stripe_en', 'stripe_sl_f', 'stripe_sl_m' ), true ) ) {
+			if ( '' !== $val && function_exists( 'ifa_is_valid_stripe_url' ) ) {
+				if ( ifa_is_valid_stripe_url( $val ) ) {
+					echo ' <span style="color:#1a7f37;font-weight:600;">✔ ' . esc_html__( 'active — buttons are live', 'ifa-core' ) . '</span>';
+				} else {
+					echo ' <span style="color:#b35900;font-weight:600;">⚠ ' . esc_html__( 'not accepted — must start with https://buy.stripe.com/ or https://checkout.stripe.com/c/pay/', 'ifa-core' ) . '</span>';
+				}
+			} elseif ( '' === $val ) {
+				echo ' <span style="color:#9ca3af;">— ' . esc_html__( 'empty (buttons stay disabled)', 'ifa-core' ) . '</span>';
+			}
+		}
 	}
 
 	/**

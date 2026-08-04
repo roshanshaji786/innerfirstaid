@@ -193,7 +193,7 @@ class IFA_Widget_Programs extends \Elementor\Widget_Base {
 
 		if ( isset( $s['card1_link_source'] ) && 'custom' === $s['card1_link_source'] ) {
 			$url = isset( $s['card1_custom_link']['url'] ) ? $s['card1_custom_link']['url'] : '';
-			return ( '' !== $url && preg_match( '#^https://buy\.stripe\.com/.*#', $url ) ) ? $url : '';
+			return ifa_is_valid_stripe_url( $url ) ? $url : '';
 		}
 
 		$lang = ifa_get_lang();

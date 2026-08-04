@@ -168,7 +168,7 @@ class IFA_Widget_Pricing extends \Elementor\Widget_Base {
 		$url = '';
 		if ( isset( $s['link_source'] ) && 'custom' === $s['link_source'] ) {
 			$url = isset( $s['custom_link']['url'] ) ? $s['custom_link']['url'] : '';
-			if ( '' !== $url && ! preg_match( '#^https://buy\.stripe\.com/.*#', $url ) ) {
+			if ( ! ifa_is_valid_stripe_url( $url ) ) {
 				$url = '';
 			}
 		} else {
