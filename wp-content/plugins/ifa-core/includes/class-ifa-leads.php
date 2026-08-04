@@ -47,6 +47,42 @@ class IFA_Leads {
 		add_action( 'admin_menu', array( $this, 'register_menu' ) );
 		add_action( 'admin_post_ifa_export_leads', array( $this, 'export_csv' ) );
 		add_action( 'admin_post_ifa_delete_lead', array( $this, 'delete_lead' ) );
+		add_action( 'admin_post_ifa_test_guide', array( $this, 'handle_test_guide' ) );
+	}
+
+	/**
+	 * Admin-post handler: send the guide email to a chosen address to verify
+	 * that the mailer (FluentSMTP/Brevo) is actually delivering.
+	 */
+	public function handle_test_guide() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Permission denied', 'ifa-core' ) );
+		}
+		check_admin_referer( 'ifa_test_guide' );
+
+		$to = isset( $_POST['test_email'] ) ? sanitize_email( wp_unslash( $_POST['test_email'] ) ) : '';
+		if ( ! is_email( $to ) ) {
+			$to = get_option( 'admin_email' );
+		}
+		$lang = isset( $_POST['test_lang'] ) && 'sl' === $_POST['test_lang'] ? 'sl' : 'en';
+
+		$sent   = $this->send_guide( $to, $lang );
+		$status = get_option( 'ifa_guide_last_send', array() );
+
+		set_transient(
+			'ifa_test_guide_result',
+			array(
+				'ok'    => $sent,
+				'to'    => $to,
+				'lang'  => $lang,
+				'time'  => current_time( 'mysql' ),
+				'info'  => isset( $status['info'] ) ? $status['info'] : '',
+			),
+			120
+		);
+
+		wp_safe_redirect( admin_url( 'admin.php?page=ifa-settings' ) );
+		exit;
 	}
 
 	/**
@@ -136,6 +172,7 @@ class IFA_Leads {
 	 *
 	 * @param string $email Lead email.
 	 * @param string $lang  Language.
+	 * @return bool Whether wp_mail accepted the send.
 	 */
 	public function send_guide( $email, $lang ) {
 		$suffix = 'sl' === $lang ? 'sl' : 'en';
@@ -157,8 +194,9 @@ class IFA_Leads {
 
 		// Resolve the PDF path from the configured URL (per-language file,
 		// falling back to the single default).
-		$attachment = '';
-		$pdf_url    = ifa_get_option( 'guide_pdf_url_' . $suffix, '' );
+		$attachment  = '';
+		$attach_name = '';
+		$pdf_url     = ifa_get_option( 'guide_pdf_url_' . $suffix, '' );
 		if ( '' === $pdf_url ) {
 			$pdf_url = ifa_get_option( 'guide_pdf_url', '' );
 		}
@@ -166,17 +204,49 @@ class IFA_Leads {
 			$upload_dir = wp_get_upload_dir();
 			$base       = isset( $upload_dir['baseurl'] ) ? trailingslashit( $upload_dir['baseurl'] ) : '';
 			$path       = isset( $upload_dir['basedir'] ) ? trailingslashit( $upload_dir['basedir'] ) : '';
+			$http_scheme = is_ssl() ? 'https://' : 'http://';
+			// Normalize scheme differences (http vs https) between the saved URL and the uploads base.
+			if ( $base && 0 !== strpos( $pdf_url, $base ) && $base !== str_replace( $http_scheme, $http_scheme, $base ) ) {
+				$alt_base = str_replace( 'http://', 'https://', $base );
+				if ( 0 === strpos( $pdf_url, $alt_base ) ) {
+					$base = $alt_base;
+				}
+			}
 			if ( $base && 0 === strpos( $pdf_url, $base ) ) {
 				$attachment = $path . ltrim( substr( $pdf_url, strlen( $base ) ), '/' );
 				if ( ! file_exists( $attachment ) ) {
 					$attachment = '';
 				}
 			}
+			// If the path is outside uploads (e.g. custom folder), fall back to download.
+			if ( '' === $attachment && filter_var( $pdf_url, FILTER_VALIDATE_URL ) ) {
+				$tmp = download_url( $pdf_url );
+				if ( ! is_wp_error( $tmp ) ) {
+					$attachment  = $tmp;
+					$attach_name = basename( parse_url( $pdf_url, PHP_URL_PATH ) );
+				}
+			}
 		}
 
 		$to      = $email;
 		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
-		wp_mail( $to, $subject, $message, $headers, $attachment ? array( $attachment ) : array() );
+		$attachments = $attachment ? array( $attachment ) : array();
+		$sent = wp_mail( $to, $subject, $message, $headers, $attachments );
+
+		// Keep a short delivery log for the admin (useful to debug mailers).
+		update_option(
+			'ifa_guide_last_send',
+			array(
+				'ok'     => (bool) $sent,
+				'to'     => $to,
+				'lang'   => $lang,
+				'time'   => current_time( 'mysql' ),
+				'attach' => $attachment ? basename( $attachment ) : 'none',
+				'info'   => $sent ? 'wp_mail accepted (check your SMTP provider dashboard for delivery)' : 'wp_mail returned false — the email was NOT handed to the mailer',
+			)
+		);
+
+		return $sent;
 	}
 
 	/**

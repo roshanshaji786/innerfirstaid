@@ -292,10 +292,39 @@ class IFA_Settings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		// Show the result of a manual test guide send.
+		$test_result = get_transient( 'ifa_test_guide_result' );
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Inner First Aid settings', 'ifa-core' ); ?></h1>
 			<?php settings_errors(); ?>
+
+			<?php if ( is_array( $test_result ) ) : ?>
+				<div class="notice <?php echo ! empty( $test_result['ok'] ) ? 'notice-success' : 'notice-error'; ?>">
+					<p>
+						<strong><?php esc_html_e( 'Test guide email', 'ifa-core' ); ?>:</strong>
+						<?php echo ! empty( $test_result['ok'] ) ? esc_html__( 'wp_mail accepted the send.', 'ifa-core' ) : esc_html__( 'wp_mail FAILED — the email was not sent.', 'ifa-core' ); ?>
+						<?php
+						echo esc_html(
+							sprintf(
+								/* translators: 1: email, 2: language, 3: time. */
+								__( 'To: %1$s (%2$s) at %3$s.', 'ifa-core' ),
+								$test_result['to'],
+								strtoupper( $test_result['lang'] ),
+								$test_result['time']
+							)
+						);
+						?>
+					</p>
+					<?php if ( ! empty( $test_result['info'] ) ) : ?>
+						<p style="margin-top:4px;"><?php echo esc_html( $test_result['info'] ); ?></p>
+					<?php endif; ?>
+					<p style="margin:6px 0 0;color:#6b7280;">
+						<?php esc_html_e( 'If wp_mail accepted but the email did not arrive, the problem is in the SMTP provider — check FluentSMTP → Email Logs and your Brevo/SMTP dashboard (the send must appear there).', 'ifa-core' ); ?>
+					</p>
+				</div>
+			<?php endif; ?>
 			<?php if ( isset( $_GET['ifa_built'] ) && '1' === $_GET['ifa_built'] ) : ?>
 				<div class="notice notice-success">
 					<p>
@@ -311,6 +340,44 @@ class IFA_Settings {
 				submit_button();
 				?>
 			</form>
+
+			<hr>
+			<h2><?php esc_html_e( 'Test the guide email delivery', 'ifa-core' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'Send the guide email right now to verify your mailer (FluentSMTP / Brevo) is working. Use your own inbox.', 'ifa-core' ); ?>
+			</p>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:8px;">
+				<input type="hidden" name="action" value="ifa_test_guide">
+				<?php wp_nonce_field( 'ifa_test_guide' ); ?>
+				<input type="email" name="test_email" required placeholder="<?php echo esc_attr( get_option( 'admin_email' ) ); ?>" class="regular-text">
+				<select name="test_lang">
+					<option value="en">English</option>
+					<option value="sl">Slovenščina</option>
+				</select>
+				<?php submit_button( __( 'Send test guide email', 'ifa-core' ), 'secondary', 'submit', false ); ?>
+			</form>
+			<?php
+			$last = get_option( 'ifa_guide_last_send', array() );
+			if ( ! empty( $last ) ) :
+				?>
+				<p class="description" style="margin-top:8px;">
+					<strong><?php esc_html_e( 'Last automatic guide send:', 'ifa-core' ); ?></strong>
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: 1: ok/failed, 2: to, 3: lang, 4: attachment, 5: time. */
+							__( '%1$s → %2$s (%3$s), attachment: %4$s, at %5$s', 'ifa-core' ),
+							! empty( $last['ok'] ) ? 'OK' : 'FAILED',
+							isset( $last['to'] ) ? $last['to'] : '-',
+							isset( $last['lang'] ) ? strtoupper( $last['lang'] ) : '-',
+							isset( $last['attach'] ) ? $last['attach'] : 'none',
+							isset( $last['time'] ) ? $last['time'] : '-'
+						)
+					);
+					?>
+				</p>
+			<?php endif; ?>
+
 			<hr>
 			<h2><?php esc_html_e( 'Build the pages (Elementor)', 'ifa-core' ); ?></h2>
 			<p>
