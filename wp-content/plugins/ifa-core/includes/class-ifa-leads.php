@@ -231,6 +231,18 @@ class IFA_Leads {
 		$to      = $email;
 		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
 		$attachments = $attachment ? array( $attachment ) : array();
+
+		// Capture the actual From address WordPress uses (with FluentSMTP active,
+		// this may be rewritten — good for diagnosing mailer routing).
+		$GLOBALS['ifa_captured_from'] = '';
+		add_filter(
+			'wp_mail_from',
+			function ( $f ) {
+				$GLOBALS['ifa_captured_from'] = $f;
+				return $f;
+			}
+		);
+
 		$sent = wp_mail( $to, $subject, $message, $headers, $attachments );
 
 		// Keep a short delivery log for the admin (useful to debug mailers).
@@ -242,6 +254,7 @@ class IFA_Leads {
 				'lang'   => $lang,
 				'time'   => current_time( 'mysql' ),
 				'attach' => $attachment ? basename( $attachment ) : 'none',
+				'from'   => isset( $GLOBALS['ifa_captured_from'] ) ? $GLOBALS['ifa_captured_from'] : '',
 				'info'   => $sent ? 'wp_mail accepted (check your SMTP provider dashboard for delivery)' : 'wp_mail returned false — the email was NOT handed to the mailer',
 			)
 		);

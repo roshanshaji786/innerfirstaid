@@ -365,12 +365,13 @@ class IFA_Settings {
 					<?php
 					echo esc_html(
 						sprintf(
-							/* translators: 1: ok/failed, 2: to, 3: lang, 4: attachment, 5: time. */
-							__( '%1$s → %2$s (%3$s), attachment: %4$s, at %5$s', 'ifa-core' ),
+							/* translators: 1: ok/failed, 2: to, 3: lang, 4: attachment, 5: from, 6: time. */
+							__( '%1$s → %2$s (%3$s), attachment: %4$s, from: %5$s, at %6$s', 'ifa-core' ),
 							! empty( $last['ok'] ) ? 'OK' : 'FAILED',
 							isset( $last['to'] ) ? $last['to'] : '-',
 							isset( $last['lang'] ) ? strtoupper( $last['lang'] ) : '-',
 							isset( $last['attach'] ) ? $last['attach'] : 'none',
+							isset( $last['from'] ) && '' !== $last['from'] ? $last['from'] : '(unknown)',
 							isset( $last['time'] ) ? $last['time'] : '-'
 						)
 					);
