@@ -109,6 +109,7 @@ class IFA_Leads {
 			email VARCHAR(191) NOT NULL,
 			lang VARCHAR(10) NOT NULL DEFAULT 'en',
 			source VARCHAR(64) NOT NULL DEFAULT 'landing_page',
+			consent VARCHAR(20) NOT NULL DEFAULT 'yes',
 			ip VARCHAR(64) NOT NULL DEFAULT '',
 			created_at DATETIME NOT NULL,
 			PRIMARY KEY  (id),
@@ -123,7 +124,12 @@ class IFA_Leads {
 	 * AJAX submit handler.
 	 */
 	public function handle_submit() {
-		check_ajax_referer( 'ifa_lead_nonce', 'nonce' );
+		// Verify the nonce from $_POST directly (robust even when a host's
+		// request_order config omits POST from $_REQUEST).
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'ifa_lead_nonce' ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid nonce' ), 403 );
+		}
 
 		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 		$lang  = isset( $_POST['lang'] ) && 'sl' === $_POST['lang'] ? 'sl' : 'en';
@@ -139,6 +145,20 @@ class IFA_Leads {
 			wp_send_json_error( array( 'message' => 'Invalid email' ), 400 );
 		}
 
+		// Consent checkbox (documents opt-in; required when enabled).
+		$consent = ( isset( $_POST['consent'] ) && 'yes' === $_POST['consent'] ) ? 'yes' : 'no';
+		if ( '1' === ifa_get_option( 'lead_consent_enabled', '1' ) && 'yes' !== $consent ) {
+			wp_send_json_error( array( 'message' => 'Consent required' ), 400 );
+		}
+
+		// reCAPTCHA v2 — verified server-side when configured.
+		if ( '' !== ifa_get_option( 'recaptcha_secret_key', '' ) ) {
+			$token = isset( $_POST['g-recaptcha-response'] ) ? sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) ) : '';
+			if ( ! self::verify_recaptcha( $token ) ) {
+				wp_send_json_error( array( 'message' => 'Captcha verification failed' ), 400 );
+			}
+		}
+
 		// Rate limit: max 10 submissions per hour per IP.
 		$ip      = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '0.0.0.0';
 		$rl_key  = 'ifa_rl_' . md5( $ip );
@@ -149,10 +169,11 @@ class IFA_Leads {
 		set_transient( $rl_key, $count + 1, HOUR_IN_SECONDS );
 
 		$inserted = $this->insert( array(
-			'email'  => strtolower( $email ),
-			'lang'   => $lang,
-			'source' => $source,
-			'ip'     => $ip,
+			'email'   => strtolower( $email ),
+			'lang'    => $lang,
+			'source'  => $source,
+			'consent' => $consent,
+			'ip'      => $ip,
 		) );
 
 		if ( false === $inserted ) {
@@ -288,13 +309,47 @@ class IFA_Leads {
 				'email'      => $data['email'],
 				'lang'       => $data['lang'],
 				'source'     => substr( $data['source'], 0, 64 ),
+				'consent'    => isset( $data['consent'] ) ? $data['consent'] : 'yes',
 				'ip'         => substr( $data['ip'], 0, 64 ),
 				'created_at' => current_time( 'mysql' ),
 			),
-			array( '%s', '%s', '%s', '%s', '%s' )
+			array( '%s', '%s', '%s', '%s', '%s', '%s' )
 		);
 
 		return $ok ? (int) $wpdb->insert_id : false;
+	}
+
+	/**
+	 * Verify a Google reCAPTCHA v2 token server-side.
+	 *
+	 * @param string $token The g-recaptcha-response value.
+	 * @return bool
+	 */
+	private static function verify_recaptcha( $token ) {
+		$secret = ifa_get_option( 'recaptcha_secret_key', '' );
+		if ( '' === $secret ) {
+			return true; // not configured — skip.
+		}
+		if ( '' === $token ) {
+			return false;
+		}
+		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$res = wp_remote_post(
+			'https://www.google.com/recaptcha/api/siteverify',
+			array(
+				'timeout' => 15,
+				'body'    => array(
+					'secret'   => $secret,
+					'response' => $token,
+					'remoteip' => $ip,
+				),
+			)
+		);
+		if ( is_wp_error( $res ) ) {
+			return false;
+		}
+		$body = json_decode( (string) wp_remote_retrieve_body( $res ), true );
+		return ! empty( $body['success'] );
 	}
 
 	/**
@@ -403,6 +458,7 @@ class IFA_Leads {
 						<th><?php esc_html_e( 'Email', 'ifa-core' ); ?></th>
 						<th><?php esc_html_e( 'Lang', 'ifa-core' ); ?></th>
 						<th><?php esc_html_e( 'Source', 'ifa-core' ); ?></th>
+						<th><?php esc_html_e( 'Consent', 'ifa-core' ); ?></th>
 						<th><?php esc_html_e( 'IP', 'ifa-core' ); ?></th>
 						<th><?php esc_html_e( 'Date', 'ifa-core' ); ?></th>
 						<th><?php esc_html_e( 'Actions', 'ifa-core' ); ?></th>
@@ -410,7 +466,7 @@ class IFA_Leads {
 				</thead>
 				<tbody>
 				<?php if ( ! $rows ) : ?>
-					<tr><td colspan="7"><?php esc_html_e( 'No leads yet.', 'ifa-core' ); ?></td></tr>
+					<tr><td colspan="8"><?php esc_html_e( 'No leads yet.', 'ifa-core' ); ?></td></tr>
 				<?php else : ?>
 					<?php foreach ( $rows as $row ) : ?>
 						<tr>
@@ -418,6 +474,7 @@ class IFA_Leads {
 							<td><?php echo esc_html( $row->email ); ?></td>
 							<td><?php echo esc_html( $row->lang ); ?></td>
 							<td><?php echo esc_html( $row->source ); ?></td>
+							<td><?php echo 'yes' === $row->consent ? esc_html__( 'Yes', 'ifa-core' ) : esc_html__( 'No', 'ifa-core' ); ?></td>
 							<td><?php echo esc_html( $row->ip ); ?></td>
 							<td><?php echo esc_html( $row->created_at ); ?></td>
 							<td>
@@ -489,9 +546,9 @@ class IFA_Leads {
 		header( 'Content-Disposition: attachment; filename=ifa-leads-' . gmdate( 'Y-m-d' ) . '.csv' );
 
 		$out = fopen( 'php://output', 'w' );
-		fputcsv( $out, array( 'id', 'email', 'lang', 'source', 'ip', 'created_at' ) );
+		fputcsv( $out, array( 'id', 'email', 'lang', 'source', 'consent', 'ip', 'created_at' ) );
 		foreach ( $rows as $row ) {
-			fputcsv( $out, array( $row->id, $row->email, $row->lang, $row->source, $row->ip, $row->created_at ) );
+			fputcsv( $out, array( $row->id, $row->email, $row->lang, $row->source, isset( $row->consent ) ? $row->consent : 'yes', $row->ip, $row->created_at ) );
 		}
 		fclose( $out );
 		exit;

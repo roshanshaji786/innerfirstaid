@@ -61,6 +61,11 @@ class IFA_Settings {
 			'brevo_api_key'          => '',
 			'brevo_sender_email'     => '',
 			'brevo_sender_name'      => '',
+			'recaptcha_site_key'     => '',
+			'recaptcha_secret_key'   => '',
+			'lead_consent_enabled'   => '1',
+			'lead_consent_label_en'  => 'I agree to receive the free guide and occasional emails. See the Privacy Policy.',
+			'lead_consent_label_sl'  => 'Strinjam se, da prejmem brezplačni vodnik in občasna sporočila. Glej Politiko zasebnosti.',
 			'guide_pdf_url'          => '',
 			'guide_pdf_url_en'       => '',
 			'guide_pdf_url_sl'       => '',
@@ -122,6 +127,7 @@ class IFA_Settings {
 
 		add_settings_section( 'ifa_payments', __( 'Payments (Stripe)', 'ifa-core' ), array( $this, 'section_payments' ), 'ifa-settings' );
 		add_settings_section( 'ifa_brevo', __( 'Email delivery (Brevo — built-in)', 'ifa-core' ), array( $this, 'section_brevo' ), 'ifa-settings' );
+		add_settings_section( 'ifa_spam', __( 'Form protection (reCAPTCHA) & consent', 'ifa-core' ), array( $this, 'section_spam' ), 'ifa-settings' );
 		add_settings_section( 'ifa_analytics', __( 'Analytics (loaded only after cookie consent)', 'ifa-core' ), '__return_false', 'ifa-settings' );
 		add_settings_section( 'ifa_leads', __( 'Leads & free guide', 'ifa-core' ), array( $this, 'section_leads' ), 'ifa-settings' );
 		add_settings_section( 'ifa_branding', __( 'Header & footer texts', 'ifa-core' ), '__return_false', 'ifa-settings' );
@@ -135,6 +141,12 @@ class IFA_Settings {
 		$this->add_field( 'ifa_brevo', 'brevo_api_key', __( 'Brevo SMTP API key (Settings → SMTP & API, starts with xkeysib-)', 'ifa-core' ), 'password' );
 		$this->add_field( 'ifa_brevo', 'brevo_sender_email', __( 'Brevo sender email (must be verified in Brevo → Senders)', 'ifa-core' ), 'email' );
 		$this->add_field( 'ifa_brevo', 'brevo_sender_name', __( 'Brevo sender name (shown as the From name)', 'ifa-core' ), 'text' );
+
+		$this->add_field( 'ifa_spam', 'recaptcha_site_key', __( 'reCAPTCHA v2 Site key (google.com/recaptcha/admin → create → v2 "I\'m not a robot")', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_spam', 'recaptcha_secret_key', __( 'reCAPTCHA v2 Secret key', 'ifa-core' ), 'password' );
+		$this->add_field( 'ifa_spam', 'lead_consent_enabled', __( 'Show consent checkbox on the lead form', 'ifa-core' ), 'checkbox' );
+		$this->add_field( 'ifa_spam', 'lead_consent_label_en', __( 'Consent label (EN)', 'ifa-core' ), 'textarea' );
+		$this->add_field( 'ifa_spam', 'lead_consent_label_sl', __( 'Consent label (SL)', 'ifa-core' ), 'textarea' );
 
 		$this->add_field( 'ifa_analytics', 'ga_id', __( 'Google Analytics 4 ID (e.g. G-XXXXXXXXXX)', 'ifa-core' ), 'text' );
 		$this->add_field( 'ifa_analytics', 'pixel_id', __( 'Meta Pixel ID (e.g. 1234567890)', 'ifa-core' ), 'text' );
@@ -214,6 +226,15 @@ class IFA_Settings {
 			return;
 		}
 
+		if ( 'checkbox' === $type ) {
+			printf(
+				'<input type="checkbox" name="%s" value="1" %s/>',
+				esc_attr( $name ),
+				checked( '1', $val, false )
+			);
+			return;
+		}
+
 		$input_type = 'text';
 		if ( 'email' === $type ) {
 			$input_type = 'email';
@@ -252,6 +273,18 @@ class IFA_Settings {
 				echo ' <span style="color:#1a7f37;font-weight:600;">✔ ' . esc_html__( 'format OK (length ' . strlen( $val ) . ') — click "Verify Brevo" to confirm', 'ifa-core' ) . '</span>';
 			}
 		}
+	}
+
+	/**
+	 * Form protection section help.
+	 */
+	public function section_spam() {
+		echo '<p class="description">' . esc_html__( 'Protects the lead forms from bots (required by Brevo for transactional sending). Google reCAPTCHA v2 checkbox is verified on the server for every submission. The consent checkbox documents opt-in for every lead.', 'ifa-core' ) . '</p>';
+		echo '<ol class="description" style="list-style:decimal;margin-left:1.2em;">';
+		echo '<li>' . esc_html__( 'Go to google.com/recaptcha/admin → Create → reCAPTCHA v2 → "I\'m not a robot" Checkbox.', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Add the domain (e.g. innerfirstaid.com) → Submit → copy the Site key and Secret key.', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Paste them below and save. The forms will then show the checkbox + captcha automatically.', 'ifa-core' ) . '</li>';
+		echo '</ol>';
 	}
 
 	/**
@@ -319,6 +352,24 @@ class IFA_Settings {
 		}
 		if ( isset( $input['brevo_sender_name'] ) ) {
 			$out['brevo_sender_name'] = sanitize_text_field( $input['brevo_sender_name'] );
+		}
+
+		// reCAPTCHA + consent.
+		if ( isset( $input['recaptcha_site_key'] ) ) {
+			$out['recaptcha_site_key'] = trim( sanitize_text_field( $input['recaptcha_site_key'] ) );
+		}
+		if ( isset( $input['recaptcha_secret_key'] ) ) {
+			$out['recaptcha_secret_key'] = trim( sanitize_text_field( $input['recaptcha_secret_key'] ) );
+		}
+		if ( isset( $input['lead_consent_enabled'] ) ) {
+			$out['lead_consent_enabled'] = '1';
+		} else {
+			$out['lead_consent_enabled'] = '0';
+		}
+		foreach ( array( 'lead_consent_label_en', 'lead_consent_label_sl' ) as $k ) {
+			if ( isset( $input[ $k ] ) ) {
+				$out[ $k ] = sanitize_text_field( $input[ $k ] );
+			}
 		}
 
 		$urls = array( 'stripe_en', 'stripe_sl_f', 'stripe_sl_m', 'en_url', 'sl_url', 'privacy_url', 'terms_url', 'guide_pdf_url', 'guide_pdf_url_en', 'guide_pdf_url_sl' );

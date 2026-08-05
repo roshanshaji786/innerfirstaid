@@ -256,6 +256,16 @@ class IFA_Widget_Hero extends \Elementor\Widget_Base {
 					<button type="submit" class="ifa-btn ifa-lead-form__submit" data-ifa-lead-submit>
 						<?php echo esc_html( $s['form_button'] ); ?>
 					</button>
+					<?php if ( '1' === ifa_get_option( 'lead_consent_enabled', '1' ) ) : ?>
+						<label class="ifa-consent">
+							<input type="checkbox" name="consent" value="yes" required>
+							<span><?php echo esc_html( ifa_get_option( 'lead_consent_label_' . $lang, '' ) ); ?></span>
+						</label>
+					<?php endif; ?>
+					<?php $rc_site = ifa_get_option( 'recaptcha_site_key', '' ); ?>
+					<?php if ( '' !== $rc_site ) : ?>
+						<div class="ifa-recaptcha" data-ifa-recaptcha data-sitekey="<?php echo esc_attr( $rc_site ); ?>"></div>
+					<?php endif; ?>
 					<input type="text" name="company_website" class="ifa-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
 					<span class="ifa-lead-form__status" data-ifa-lead-status role="status" aria-live="polite"></span>
 				</form>

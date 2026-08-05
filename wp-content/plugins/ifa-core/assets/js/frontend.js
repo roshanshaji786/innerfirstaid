@@ -40,6 +40,14 @@
 			return;
 		}
 
+		// Consent checkbox (when present).
+		var consentBox = form.querySelector('input[name="consent"]');
+		if (consentBox && !consentBox.checked) {
+			setStatus('error', form.getAttribute('data-ifa-consent-msg') || 'Please accept to continue.');
+			consentBox.focus();
+			return;
+		}
+
 		clearStatus();
 		if (btn) {
 			btn.disabled = true;
@@ -53,6 +61,24 @@
 		body.set('email', email);
 		body.set('lang', lang);
 		body.set('source', source);
+		if (consentBox && consentBox.checked) {
+			body.set('consent', 'yes');
+		}
+		// reCAPTCHA token (when the form has a captcha).
+		var rcEl = form.querySelector('[data-ifa-recaptcha]');
+		if (rcEl) {
+			if (!window.grecaptcha) {
+				setStatus('error', 'Please complete the captcha.');
+				return;
+			}
+			var rcId = parseInt(form.getAttribute('data-ifa-recaptcha-id') || '0', 10);
+			var rcResp = window.grecaptcha.getResponse(rcId);
+			if (!rcResp) {
+				setStatus('error', form.getAttribute('data-ifa-captcha-msg') || 'Please complete the captcha.');
+				return;
+			}
+			body.set('g-recaptcha-response', rcResp);
+		}
 		var hp = form.querySelector('input[name="company_website"]');
 		if (hp && hp.value) {
 			body.set('company_website', hp.value);
@@ -218,5 +244,48 @@
 		document.addEventListener('DOMContentLoaded', initCookieBanner);
 	} else {
 		initCookieBanner();
+	}
+
+	/* ------------------------------------------------------------------ *
+	 * Google reCAPTCHA v2 (explicit render)
+	 * ------------------------------------------------------------------ */
+
+	function renderRecaptchas() {
+		var els = document.querySelectorAll('[data-ifa-recaptcha]');
+		els.forEach(function (el) {
+			if (el.dataset.rendered) return;
+			var id = window.grecaptcha.render(el, {
+				sitekey: el.dataset.sitekey,
+				size: 'normal'
+			});
+			el.dataset.rendered = '1';
+			var form = el.closest('form');
+			if (form) form.setAttribute('data-ifa-recaptcha-id', String(id));
+		});
+	}
+
+	function initRecaptcha() {
+		var els = document.querySelectorAll('[data-ifa-recaptcha]');
+		if (!els.length) return;
+		if (window.ifaRecaptchaLoaded) {
+			renderRecaptchas();
+			return;
+		}
+		window.ifaRecaptchaLoaded = false;
+		window.ifaRecaptchaOnload = function () {
+			window.ifaRecaptchaLoaded = true;
+			renderRecaptchas();
+		};
+		var s = document.createElement('script');
+		s.src = 'https://www.google.com/recaptcha/api.js?render=explicit&onload=ifaRecaptchaOnload';
+		s.async = true;
+		s.defer = true;
+		document.head.appendChild(s);
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initRecaptcha);
+	} else {
+		initRecaptcha();
 	}
 })();

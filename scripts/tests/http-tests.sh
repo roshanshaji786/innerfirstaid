@@ -73,17 +73,17 @@ if [ -n "$WP_PATH" ] && [ -f "$WP_PATH/wp-load.php" ]; then
   fi
 fi
 
-code=$(curl -s -o /tmp/ifa_lead.json -w "%{http_code}" -X POST "$AJ" -d "action=ifa_submit_lead&nonce=$NONCE&email=http-test-$(date +%s)@example.com&lang=en&source=tests")
+code=$(curl -s -o /tmp/ifa_lead.json -w "%{http_code}" -X POST "$AJ" -d "action=ifa_submit_lead&nonce=$NONCE&email=http-test-$(date +%s)@example.com&lang=en&source=tests&consent=yes")
 check "valid lead -> 201"   "$([ "$code" = "201" ]; echo $?)" "(got $code: $(cat /tmp/ifa_lead.json))"
 check "lead json success"   "$(grepq /tmp/ifa_lead.json '"success":true')" ""
 
-code=$(curl -s -o /tmp/ifa_lead.json -w "%{http_code}" -X POST "$AJ" -d "action=ifa_submit_lead&nonce=$NONCE&email=not-an-email&lang=en")
+code=$(curl -s -o /tmp/ifa_lead.json -w "%{http_code}" -X POST "$AJ" -d "action=ifa_submit_lead&nonce=$NONCE&email=not-an-email&lang=en&consent=yes")
 check "invalid email -> 400" "$([ "$code" = "400" ]; echo $?)" "(got $code)"
 
-code=$(curl -s -o /tmp/ifa_lead.json -w "%{http_code}" -X POST "$AJ" -d "action=ifa_submit_lead&nonce=$NONCE&email=bot@example.com&lang=en&company_website=spam")
+code=$(curl -s -o /tmp/ifa_lead.json -w "%{http_code}" -X POST "$AJ" -d "action=ifa_submit_lead&nonce=$NONCE&email=bot@example.com&lang=en&company_website=spam&consent=yes")
 check "honeypot rejected"    "$([ "$code" = "200" ] && [ "$(grep -c 'created' /tmp/ifa_lead.json)" = "0" ]; echo $?)" ""
 
-code=$(curl -s -o /tmp/ifa_lead.json -w "%{http_code}" -X POST "$AJ" -d "action=ifa_submit_lead&nonce=badnonce&email=x@example.com")
+code=$(curl -s -o /tmp/ifa_lead.json -w "%{http_code}" -X POST "$AJ" -d "action=ifa_submit_lead&nonce=badnonce&email=x@example.com&consent=yes")
 check "bad nonce -> 403"     "$([ "$code" = "403" ]; echo $?)" "(got $code)"
 
 echo "== Free guide auto-delivery =="
@@ -136,7 +136,7 @@ for attempt in 1 2 3; do
   [ -s /tmp/ifa_leads.csv ] && break
   sleep 1
 done
-check "CSV export"           "$(grepq /tmp/ifa_leads.csv '^id,email,lang,source,ip,created_at')" ""
+check "CSV export"           "$(grepq /tmp/ifa_leads.csv '^id,email,lang,source,consent,ip,created_at')" ""
 
 curl -s -b "$COOKIES" "$BASE/wp-admin/options-general.php?page=ifa-settings" -o /tmp/ifa_settings.html
 check "settings page"        "$(grepq /tmp/ifa_settings.html 'Build pages now')" ""

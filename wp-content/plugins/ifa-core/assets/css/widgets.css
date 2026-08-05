@@ -153,6 +153,41 @@
 	pointer-events: none;
 }
 
+/* Consent checkbox + reCAPTCHA inside lead forms. */
+.ifa-consent {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	font-size: 13px;
+	line-height: 1.45;
+	color: inherit;
+	cursor: pointer;
+	max-width: 520px;
+}
+
+.ifa-consent input {
+	margin-top: 3px;
+	flex-shrink: 0;
+	width: 15px;
+	height: 15px;
+	accent-color: var(--ifa-accent, #2d7a47);
+}
+
+.ifa-hero .ifa-consent {
+	color: rgba(255, 255, 255, 0.92);
+}
+
+.ifa-recaptcha {
+	margin-top: 4px;
+	transform-origin: left center;
+}
+
+@media (max-width: 640px) {
+	.ifa-recaptcha {
+		transform: scale(0.92);
+	}
+}
+
 /* ---------- Social proof ---------- */
 
 .ifa-social {

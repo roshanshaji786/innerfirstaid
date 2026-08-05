@@ -142,6 +142,8 @@ if (banner) {
 const form2 = hDoc.querySelector('[data-ifa-lead-form]');
 const input2 = form2.querySelector('input[name="email"]');
 const status2 = form2.querySelector('[data-ifa-lead-status]');
+const consent2 = form2.querySelector('input[name="consent"]');
+if (consent2) consent2.checked = true;
 input2.value = 'domtest@example.com';
 form2.dispatchEvent(new home.window.Event('submit', { bubbles: true, cancelable: true }));
 await sleep(2500);
@@ -202,6 +204,8 @@ if (slBanner) {
 // 10. SL lead form submits with lang=sl
 const slForm = sDoc.querySelector('[data-ifa-lead-form]');
 const slInput = slForm.querySelector('input[name="email"]');
+const slConsent = slForm.querySelector('input[name="consent"]');
+if (slConsent) slConsent.checked = true;
 slInput.value = 'sl-test@example.com';
 slForm.dispatchEvent(new sl.window.Event('submit', { bubbles: true, cancelable: true }));
 await sleep(2500);

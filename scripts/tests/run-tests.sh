@@ -62,6 +62,9 @@ if [ -n "$WP_PATH" ] && [ -f "$WP_PATH/wp-load.php" ]; then
         ifa_update_option("stripe_en",  "https://buy.stripe.com/EN123");
         ifa_update_option("stripe_sl_f","https://checkout.stripe.com/c/pay/SLF456");
         ifa_update_option("stripe_sl_m","https://buy.stripe.com/SLM789");
+        // reCAPTCHA is tested separately; clear keys so the lead API tests run clean.
+        ifa_update_option("recaptcha_site_key", "");
+        ifa_update_option("recaptcha_secret_key", "");
       }
       global $wpdb;
       $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE \"_transient_ifa_rl_%\" OR option_name LIKE \"_transient_timeout_ifa_rl_%\"");
