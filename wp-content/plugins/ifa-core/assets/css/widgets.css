@@ -90,16 +90,39 @@
 	max-width: 512px;
 }
 
+/* Row 1: input + button side by side on desktop. */
+.ifa-lead-form__input,
+.ifa-lead-form__submit {
+	width: 100%;
+}
+
 @media (min-width: 640px) {
 	.ifa-lead-form {
 		flex-direction: row;
+		flex-wrap: wrap;
 		align-items: stretch;
+	}
+
+	.ifa-lead-form__input {
+		flex: 1 1 220px;
+		width: auto;
+		min-width: 0;
+	}
+
+	.ifa-lead-form__submit {
+		flex: 0 0 auto;
+		width: auto;
+	}
+
+	/* Consent + captcha always span the full width below the input row. */
+	.ifa-consent,
+	.ifa-recaptcha,
+	.ifa-lead-form__status {
+		flex: 1 1 100%;
 	}
 }
 
 .ifa-lead-form__input {
-	flex: 1 1 auto;
-	min-width: 0;
 	padding: 15px 20px;
 	font-size: 16px;
 	font-family: inherit;
@@ -180,11 +203,13 @@
 .ifa-recaptcha {
 	margin-top: 4px;
 	transform-origin: left center;
+	min-height: 78px; /* reserve space so the layout doesn't jump */
 }
 
 @media (max-width: 640px) {
 	.ifa-recaptcha {
 		transform: scale(0.92);
+		transform-origin: left top;
 	}
 }
 
