@@ -246,16 +246,18 @@ class IFA_Leads {
 		$sent = wp_mail( $to, $subject, $message, $headers, $attachments );
 
 		// Keep a short delivery log for the admin (useful to debug mailers).
+		$message_id = class_exists( 'IFA_Brevo' ) ? (string) get_option( 'ifa_brevo_last_message_id', '' ) : '';
 		update_option(
 			'ifa_guide_last_send',
 			array(
-				'ok'     => (bool) $sent,
-				'to'     => $to,
-				'lang'   => $lang,
-				'time'   => current_time( 'mysql' ),
-				'attach' => $attachment ? basename( $attachment ) : 'none',
-				'from'   => isset( $GLOBALS['ifa_captured_from'] ) ? $GLOBALS['ifa_captured_from'] : '',
-				'info'   => $sent ? 'wp_mail accepted (check your SMTP provider dashboard for delivery)' : 'wp_mail returned false — the email was NOT handed to the mailer',
+				'ok'        => (bool) $sent,
+				'to'        => $to,
+				'lang'      => $lang,
+				'time'      => current_time( 'mysql' ),
+				'attach'    => $attachment ? basename( $attachment ) : 'none',
+				'from'      => isset( $GLOBALS['ifa_captured_from'] ) ? $GLOBALS['ifa_captured_from'] : '',
+				'message_id'=> $message_id,
+				'info'      => $sent ? ( $message_id ? 'Accepted by Brevo — messageId: ' . $message_id : 'wp_mail accepted (check your SMTP provider dashboard for delivery)' ) : 'wp_mail returned false — the email was NOT handed to the mailer',
 			)
 		);
 

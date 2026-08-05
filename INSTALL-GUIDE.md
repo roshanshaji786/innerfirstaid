@@ -137,10 +137,13 @@ the correct PDF attached. You can edit the email subject/message per language
 in the same settings page, and regenerate the PDFs any time with
 `python3 guide/build_guide.py`.
 
-> 📌 **Important for deliverability:** install a free SMTP plugin
-> (WP Mail SMTP or FluentSMTP) and connect it to a mailbox so the emails land
-> in the inbox instead of spam. On most hosts, without an SMTP plugin emails
-> may not send at all.
+> 📌 **Email delivery is built-in since v1.0.8** — no extra SMTP plugin needed:
+> **Settings → Inner First Aid → Email delivery (Brevo)** → paste your Brevo
+> SMTP API key (Brevo → Settings → SMTP & API, starts with `xkeysib-`) + a
+> sender email verified in Brevo → Settings → Senders → Save → click
+> **"Verify Brevo & send test email"**. The page then shows: API key ✔,
+> sender ✔, and the real test email's message ID — check your inbox for it.
+> You can deactivate FluentSMTP / WP Mail SMTP afterwards.
 
 ---
 

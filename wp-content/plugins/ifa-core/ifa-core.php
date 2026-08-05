@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Inner First Aid Core
  * Description: Core functionality for Inner First Aid: Elementor widgets, lead capture (with admin list & CSV export), Stripe payment links, cookie consent with analytics, multi-language (EN/SL) and one-click page builder.
- * Version: 1.0.7
+ * Version: 1.0.8
  * Author: Inner First Aid
  * Text Domain: ifa-core
  * Requires at least: 5.2
@@ -29,7 +29,7 @@ if ( version_compare( PHP_VERSION, '7.2', '<' ) ) {
 	return;
 }
 
-define( 'IFA_CORE_VERSION', '1.0.7' );
+define( 'IFA_CORE_VERSION', '1.0.8' );
 define( 'IFA_CORE_FILE', __FILE__ );
 define( 'IFA_CORE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'IFA_CORE_URL', plugin_dir_url( __FILE__ ) );
@@ -40,6 +40,7 @@ require_once IFA_CORE_DIR . 'includes/class-ifa-leads.php';
 require_once IFA_CORE_DIR . 'includes/class-ifa-consent.php';
 require_once IFA_CORE_DIR . 'includes/class-ifa-builder.php';
 require_once IFA_CORE_DIR . 'includes/class-ifa-widgets.php';
+require_once IFA_CORE_DIR . 'includes/class-ifa-brevo.php';
 
 /**
  * Activation: safe defaults + lazy table creation.
@@ -152,6 +153,7 @@ function ifa_core_init() {
 	IFA_Leads::instance();
 	IFA_Consent::instance();
 	IFA_Builder::instance();
+	IFA_Brevo::instance();
 
 	if ( did_action( 'elementor/loaded' ) ) {
 		if ( class_exists( 'IFA_Widgets' ) ) {

@@ -58,6 +58,9 @@ class IFA_Settings {
 			'ga_id'                  => '',
 			'pixel_id'               => '',
 			'lead_notify_email'      => '',
+			'brevo_api_key'          => '',
+			'brevo_sender_email'     => '',
+			'brevo_sender_name'      => '',
 			'guide_pdf_url'          => '',
 			'guide_pdf_url_en'       => '',
 			'guide_pdf_url_sl'       => '',
@@ -118,6 +121,7 @@ class IFA_Settings {
 		);
 
 		add_settings_section( 'ifa_payments', __( 'Payments (Stripe)', 'ifa-core' ), array( $this, 'section_payments' ), 'ifa-settings' );
+		add_settings_section( 'ifa_brevo', __( 'Email delivery (Brevo — built-in)', 'ifa-core' ), array( $this, 'section_brevo' ), 'ifa-settings' );
 		add_settings_section( 'ifa_analytics', __( 'Analytics (loaded only after cookie consent)', 'ifa-core' ), '__return_false', 'ifa-settings' );
 		add_settings_section( 'ifa_leads', __( 'Leads & free guide', 'ifa-core' ), array( $this, 'section_leads' ), 'ifa-settings' );
 		add_settings_section( 'ifa_branding', __( 'Header & footer texts', 'ifa-core' ), '__return_false', 'ifa-settings' );
@@ -127,6 +131,10 @@ class IFA_Settings {
 		$this->add_field( 'ifa_payments', 'stripe_en', __( 'Stripe link — English program', 'ifa-core' ), 'url' );
 		$this->add_field( 'ifa_payments', 'stripe_sl_f', __( 'Stripe link — Slovenian (female)', 'ifa-core' ), 'url' );
 		$this->add_field( 'ifa_payments', 'stripe_sl_m', __( 'Stripe link — Slovenian (male)', 'ifa-core' ), 'url' );
+
+		$this->add_field( 'ifa_brevo', 'brevo_api_key', __( 'Brevo SMTP API key (Settings → SMTP & API, starts with xkeysib-)', 'ifa-core' ), 'password' );
+		$this->add_field( 'ifa_brevo', 'brevo_sender_email', __( 'Brevo sender email (must be verified in Brevo → Senders)', 'ifa-core' ), 'email' );
+		$this->add_field( 'ifa_brevo', 'brevo_sender_name', __( 'Brevo sender name (shown as the From name)', 'ifa-core' ), 'text' );
 
 		$this->add_field( 'ifa_analytics', 'ga_id', __( 'Google Analytics 4 ID (e.g. G-XXXXXXXXXX)', 'ifa-core' ), 'text' );
 		$this->add_field( 'ifa_analytics', 'pixel_id', __( 'Meta Pixel ID (e.g. 1234567890)', 'ifa-core' ), 'text' );
@@ -206,11 +214,19 @@ class IFA_Settings {
 			return;
 		}
 
+		$input_type = 'text';
+		if ( 'email' === $type ) {
+			$input_type = 'email';
+		} elseif ( 'password' === $type ) {
+			$input_type = 'password';
+		}
+
 		printf(
-			'<input type="%s" name="%s" value="%s" class="regular-text" />',
-			esc_attr( 'email' === $type ? 'email' : 'text' ),
+			'<input type="%s" name="%s" value="%s" class="regular-text" %s/>',
+			esc_attr( $input_type ),
 			esc_attr( $name ),
-			esc_attr( $val )
+			esc_attr( $val ),
+			'password' === $type ? 'autocomplete="new-password" ' : ''
 		);
 
 		// Live status for Stripe link fields.
@@ -225,6 +241,18 @@ class IFA_Settings {
 				echo ' <span style="color:#9ca3af;">— ' . esc_html__( 'empty (buttons stay disabled)', 'ifa-core' ) . '</span>';
 			}
 		}
+	}
+
+	/**
+	 * Brevo section help.
+	 */
+	public function section_brevo() {
+		echo '<p class="description">' . esc_html__( 'When the API key is set, ALL site emails (guide PDFs, lead notifications, WordPress system emails) are sent directly through Brevo — no separate SMTP plugin needed. You can deactivate FluentSMTP.', 'ifa-core' ) . '</p>';
+		echo '<ol class="description" style="list-style:decimal;margin-left:1.2em;">';
+		echo '<li>' . esc_html__( 'Brevo dashboard → Settings → SMTP & API → copy the "SMTP API key" (starts with xkeysib-).', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Paste it below, plus a sender email that is verified in Brevo → Settings → Senders.', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Save, then use the "Verify Brevo connection" button — it checks the key, the sender and sends a real test email to your inbox.', 'ifa-core' ) . '</li>';
+		echo '</ol>';
 	}
 
 	/**
@@ -271,6 +299,17 @@ class IFA_Settings {
 			}
 		}
 
+		// Brevo API key: keep the full key (may contain spaces? no — but preserve exact value).
+		if ( isset( $input['brevo_api_key'] ) ) {
+			$out['brevo_api_key'] = trim( sanitize_text_field( $input['brevo_api_key'] ) );
+		}
+		if ( isset( $input['brevo_sender_email'] ) ) {
+			$out['brevo_sender_email'] = sanitize_email( $input['brevo_sender_email'] );
+		}
+		if ( isset( $input['brevo_sender_name'] ) ) {
+			$out['brevo_sender_name'] = sanitize_text_field( $input['brevo_sender_name'] );
+		}
+
 		$urls = array( 'stripe_en', 'stripe_sl_f', 'stripe_sl_m', 'en_url', 'sl_url', 'privacy_url', 'terms_url', 'guide_pdf_url', 'guide_pdf_url_en', 'guide_pdf_url_sl' );
 		foreach ( $urls as $k ) {
 			if ( isset( $input[ $k ] ) ) {
@@ -295,10 +334,30 @@ class IFA_Settings {
 
 		// Show the result of a manual test guide send.
 		$test_result = get_transient( 'ifa_test_guide_result' );
+
+		// Show the result of a Brevo connection verification.
+		$brevo_result = get_transient( 'ifa_brevo_test_result' );
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Inner First Aid settings', 'ifa-core' ); ?></h1>
 			<?php settings_errors(); ?>
+
+			<?php if ( is_array( $brevo_result ) ) : ?>
+				<div class="notice notice-info" style="margin:12px 0;">
+					<p><strong><?php esc_html_e( 'Brevo connection check', 'ifa-core' ); ?></strong></p>
+					<ul style="margin:0 0 6px 18px;list-style:disc;">
+						<?php foreach ( $brevo_result as $r ) : ?>
+							<li style="margin:3px 0;">
+								<span style="font-weight:600;color:<?php echo 'ok' === $r['type'] ? '#1a7f37' : ( 'error' === $r['type'] ? '#b3261e' : '#555' ); ?>;">
+									<?php echo 'ok' === $r['type'] ? '✔' : ( 'error' === $r['type'] ? '✖' : '•' ); ?>
+									<?php echo esc_html( $r['label'] ); ?>:
+								</span>
+								<?php echo esc_html( $r['detail'] ); ?>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+			<?php endif; ?>
 
 			<?php if ( is_array( $test_result ) ) : ?>
 				<div class="notice <?php echo ! empty( $test_result['ok'] ) ? 'notice-success' : 'notice-error'; ?>">
@@ -340,6 +399,32 @@ class IFA_Settings {
 				submit_button();
 				?>
 			</form>
+
+			<hr>
+			<h2><?php esc_html_e( 'Verify Brevo connection', 'ifa-core' ); ?></h2>
+			<p class="description">
+				<?php esc_html_e( 'Checks the API key, confirms your sender is verified, and sends a real test email to your inbox via the Brevo API.', 'ifa-core' ); ?>
+			</p>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:8px;">
+				<input type="hidden" name="action" value="ifa_brevo_test">
+				<?php wp_nonce_field( 'ifa_brevo_test' ); ?>
+				<input type="email" name="test_email" required placeholder="<?php echo esc_attr( get_option( 'admin_email' ) ); ?>" class="regular-text">
+				<?php submit_button( __( 'Verify Brevo & send test email', 'ifa-core' ), 'primary', 'submit', false ); ?>
+			</form>
+			<?php if ( class_exists( 'IFA_Brevo' ) && IFA_Brevo::is_configured() ) : ?>
+				<p class="description" style="margin-top:6px;">
+					<?php
+					echo esc_html(
+						sprintf(
+							/* translators: 1: sender email, 2: last message id. */
+							__( 'Brevo active — sender: %1$s. Last Brevo messageId: %2$s.', 'ifa-core' ),
+							IFA_Brevo::sender_email(),
+							get_option( 'ifa_brevo_last_message_id', '—' )
+						)
+					);
+					?>
+				</p>
+			<?php endif; ?>
 
 			<hr>
 			<h2><?php esc_html_e( 'Test the guide email delivery', 'ifa-core' ); ?></h2>
