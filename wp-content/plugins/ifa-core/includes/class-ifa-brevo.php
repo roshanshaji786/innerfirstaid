@@ -245,12 +245,24 @@ class IFA_Brevo {
 		$out = array();
 
 		// 1. API key.
+		$key = self::api_key();
+
+		// Sanity-check the key format before hitting the API.
+		if ( strlen( $key ) < 30 || 0 !== strpos( $key, 'xkeysib-' ) ) {
+			$out[] = array(
+				'type'   => 'error',
+				'label'  => 'API key',
+				'detail' => 'The saved key looks wrong: it must start with "xkeysib-" and be about 70 characters long (saved length: ' . strlen( $key ) . '). You likely copied a partial key or the wrong value. Get it from Brevo → Settings → SMTP & API → "SMTP API key" and copy the WHOLE key.',
+			);
+			return $out;
+		}
+
 		$res = wp_remote_get(
 			self::API . '/account',
 			array(
 				'timeout' => 20,
 				'headers' => array(
-					'api-key' => self::api_key(),
+					'api-key' => $key,
 					'Accept'  => 'application/json',
 				),
 			)
@@ -262,7 +274,16 @@ class IFA_Brevo {
 		$code = (int) wp_remote_retrieve_response_code( $res );
 		$body = json_decode( (string) wp_remote_retrieve_body( $res ), true );
 		if ( 200 !== $code ) {
-			$out[] = array( 'type' => 'error', 'label' => 'API key', 'detail' => 'Brevo returned HTTP ' . $code . ' — the key is invalid or unauthorized.' );
+			$msg = isset( $body['message'] ) ? (string) $body['message'] : '';
+			$out[] = array(
+				'type'   => 'error',
+				'label'  => 'API key',
+				'detail' => sprintf(
+					'Brevo returned HTTP %1$d%2$s. This means the key is invalid or unauthorized for this account. Common causes: (1) you pasted the key from a DIFFERENT Brevo account, (2) the key was copied only partially (it must start with "xkeysib-" and be ~70 characters), (3) the key was regenerated after you pasted it. Fix: Brevo → Settings → SMTP & API → copy the current "SMTP API key" in full (Ctrl+C / Cmd+C), then paste it here again and Save.',
+					$code,
+					'' !== $msg ? ' — "' . $msg . '"' : ''
+				),
+			);
 			return $out;
 		}
 		$out[] = array(

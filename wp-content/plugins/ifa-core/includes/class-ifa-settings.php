@@ -241,6 +241,17 @@ class IFA_Settings {
 				echo ' <span style="color:#9ca3af;">— ' . esc_html__( 'empty (buttons stay disabled)', 'ifa-core' ) . '</span>';
 			}
 		}
+
+		// Live status for the Brevo API key field.
+		if ( 'brevo_api_key' === $key ) {
+			if ( '' === $val ) {
+				echo ' <span style="color:#9ca3af;">— ' . esc_html__( 'empty (emails use the default WordPress mailer)', 'ifa-core' ) . '</span>';
+			} elseif ( strlen( $val ) < 30 || 0 !== strpos( $val, 'xkeysib-' ) ) {
+				echo ' <span style="color:#b3261e;font-weight:600;">✖ ' . esc_html__( 'invalid format — must start with xkeysib- and be ~70 characters. Re-copy the key from Brevo → Settings → SMTP & API.', 'ifa-core' ) . '</span>';
+			} else {
+				echo ' <span style="color:#1a7f37;font-weight:600;">✔ ' . esc_html__( 'format OK (length ' . strlen( $val ) . ') — click "Verify Brevo" to confirm', 'ifa-core' ) . '</span>';
+			}
+		}
 	}
 
 	/**
