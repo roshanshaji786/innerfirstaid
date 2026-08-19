@@ -18,9 +18,11 @@ if ! command -v zip >/dev/null 2>&1; then
 fi
 
 echo "Creating dist/inner-first-aid.zip ..."
+rm -f "$OUT/inner-first-aid.zip"
 (cd "$ROOT/wp-content/themes" && zip -qr "$OUT/inner-first-aid.zip" inner-first-aid)
 
 echo "Creating dist/ifa-core.zip ..."
+rm -f "$OUT/ifa-core.zip"
 (cd "$ROOT/wp-content/plugins" && zip -qr "$OUT/ifa-core.zip" ifa-core)
 
 echo

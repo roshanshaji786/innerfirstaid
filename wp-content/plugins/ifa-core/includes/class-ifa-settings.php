@@ -61,13 +61,6 @@ class IFA_Settings {
 			'brevo_api_key'          => '',
 			'brevo_sender_email'     => '',
 			'brevo_sender_name'      => '',
-			'smtp_host'              => '',
-			'smtp_port'              => '465',
-			'smtp_encryption'        => 'ssl',
-			'smtp_username'          => '',
-			'smtp_password'          => '',
-			'smtp_from_email'        => '',
-			'smtp_from_name'         => '',
 			'recaptcha_site_key'     => '',
 			'recaptcha_secret_key'   => '',
 			'lead_consent_enabled'   => '1',
@@ -134,7 +127,6 @@ class IFA_Settings {
 
 		add_settings_section( 'ifa_payments', __( 'Payments (Stripe)', 'ifa-core' ), array( $this, 'section_payments' ), 'ifa-settings' );
 		add_settings_section( 'ifa_brevo', __( 'Email delivery (Brevo — built-in)', 'ifa-core' ), array( $this, 'section_brevo' ), 'ifa-settings' );
-		add_settings_section( 'ifa_smtp', __( 'Email delivery (Custom SMTP — hosting mail)', 'ifa-core' ), array( $this, 'section_smtp' ), 'ifa-settings' );
 		add_settings_section( 'ifa_spam', __( 'Form protection (reCAPTCHA) & consent', 'ifa-core' ), array( $this, 'section_spam' ), 'ifa-settings' );
 		add_settings_section( 'ifa_analytics', __( 'Analytics (loaded only after cookie consent)', 'ifa-core' ), '__return_false', 'ifa-settings' );
 		add_settings_section( 'ifa_leads', __( 'Leads & free guide', 'ifa-core' ), array( $this, 'section_leads' ), 'ifa-settings' );
@@ -149,14 +141,6 @@ class IFA_Settings {
 		$this->add_field( 'ifa_brevo', 'brevo_api_key', __( 'Brevo SMTP API key (Settings → SMTP & API, starts with xkeysib-)', 'ifa-core' ), 'password' );
 		$this->add_field( 'ifa_brevo', 'brevo_sender_email', __( 'Brevo sender email (must be verified in Brevo → Senders)', 'ifa-core' ), 'email' );
 		$this->add_field( 'ifa_brevo', 'brevo_sender_name', __( 'Brevo sender name (shown as the From name)', 'ifa-core' ), 'text' );
-
-		$this->add_field( 'ifa_smtp', 'smtp_host', __( 'SMTP host (e.g. info.innerfirstaid.com)', 'ifa-core' ), 'text' );
-		$this->add_field( 'ifa_smtp', 'smtp_port', __( 'SMTP port (e.g. 465 for SSL, 587 for TLS)', 'ifa-core' ), 'text' );
-		$this->add_field( 'ifa_smtp', 'smtp_encryption', __( 'Encryption', 'ifa-core' ), 'select' );
-		$this->add_field( 'ifa_smtp', 'smtp_username', __( 'SMTP username (full email address)', 'ifa-core' ), 'text' );
-		$this->add_field( 'ifa_smtp', 'smtp_password', __( 'SMTP password', 'ifa-core' ), 'password' );
-		$this->add_field( 'ifa_smtp', 'smtp_from_email', __( 'From email (leave empty to use the username)', 'ifa-core' ), 'email' );
-		$this->add_field( 'ifa_smtp', 'smtp_from_name', __( 'From name (e.g. Inner First Aid)', 'ifa-core' ), 'text' );
 
 		$this->add_field( 'ifa_spam', 'recaptcha_site_key', __( 'reCAPTCHA v2 Site key (google.com/recaptcha/admin → create → v2 "I\'m not a robot")', 'ifa-core' ), 'text' );
 		$this->add_field( 'ifa_spam', 'recaptcha_secret_key', __( 'reCAPTCHA v2 Secret key', 'ifa-core' ), 'password' );
@@ -251,25 +235,6 @@ class IFA_Settings {
 			return;
 		}
 
-		if ( 'select' === $type && 'smtp_encryption' === $key ) {
-			$options = array(
-				'ssl'  => 'SSL/TLS (port 465)',
-				'tls'  => 'STARTTLS (port 587)',
-				'none' => 'None',
-			);
-			echo '<select name="' . esc_attr( $name ) . '">';
-			foreach ( $options as $opt_val => $opt_label ) {
-				printf(
-					'<option value="%s" %s>%s</option>',
-					esc_attr( $opt_val ),
-					selected( $val, $opt_val, false ),
-					esc_html( $opt_label )
-				);
-			}
-			echo '</select>';
-			return;
-		}
-
 		$input_type = 'text';
 		if ( 'email' === $type ) {
 			$input_type = 'email';
@@ -319,18 +284,6 @@ class IFA_Settings {
 		echo '<li>' . esc_html__( 'Go to google.com/recaptcha/admin → Create → reCAPTCHA v2 → "I\'m not a robot" Checkbox.', 'ifa-core' ) . '</li>';
 		echo '<li>' . esc_html__( 'Add the domain (e.g. innerfirstaid.com) → Submit → copy the Site key and Secret key.', 'ifa-core' ) . '</li>';
 		echo '<li>' . esc_html__( 'Paste them below and save. The forms will then show the checkbox + captcha automatically.', 'ifa-core' ) . '</li>';
-		echo '</ol>';
-	}
-
-	/**
-	 * Custom SMTP section help.
-	 */
-	public function section_smtp() {
-		echo '<p class="description">' . esc_html__( 'Use your hosting mail account (cPanel / Hostinger / etc.) as the mailer. When the host is set, ALL site emails go through this SMTP server (Custom SMTP overrides Brevo).', 'ifa-core' ) . '</p>';
-		echo '<ol class="description" style="list-style:decimal;margin-left:1.2em;">';
-		echo '<li>' . esc_html__( 'Get the details from your hosting panel (Mail → SMTP settings) or from your client.', 'ifa-core' ) . '</li>';
-		echo '<li>' . esc_html__( 'Fill host / port / encryption / username / password. Port 465 → SSL/TLS; port 587 → STARTTLS.', 'ifa-core' ) . '</li>';
-		echo '<li>' . esc_html__( 'Save, then use "Test SMTP & send test email" below — it reports exactly what the server said.', 'ifa-core' ) . '</li>';
 		echo '</ol>';
 	}
 
@@ -401,29 +354,6 @@ class IFA_Settings {
 			$out['brevo_sender_name'] = sanitize_text_field( $input['brevo_sender_name'] );
 		}
 
-		// Custom SMTP.
-		if ( isset( $input['smtp_host'] ) ) {
-			$out['smtp_host'] = trim( sanitize_text_field( $input['smtp_host'] ) );
-		}
-		if ( isset( $input['smtp_port'] ) ) {
-			$out['smtp_port'] = (string) max( 1, min( 65535, (int) $input['smtp_port'] ) );
-		}
-		if ( isset( $input['smtp_encryption'] ) && in_array( $input['smtp_encryption'], array( 'ssl', 'tls', 'none' ), true ) ) {
-			$out['smtp_encryption'] = $input['smtp_encryption'];
-		}
-		if ( isset( $input['smtp_username'] ) ) {
-			$out['smtp_username'] = sanitize_email( $input['smtp_username'] );
-		}
-		if ( isset( $input['smtp_password'] ) ) {
-			$out['smtp_password'] = (string) $input['smtp_password'];
-		}
-		if ( isset( $input['smtp_from_email'] ) ) {
-			$out['smtp_from_email'] = sanitize_email( $input['smtp_from_email'] );
-		}
-		if ( isset( $input['smtp_from_name'] ) ) {
-			$out['smtp_from_name'] = sanitize_text_field( $input['smtp_from_name'] );
-		}
-
 		// reCAPTCHA + consent.
 		if ( isset( $input['recaptcha_site_key'] ) ) {
 			$out['recaptcha_site_key'] = trim( sanitize_text_field( $input['recaptcha_site_key'] ) );
@@ -469,37 +399,7 @@ class IFA_Settings {
 
 		// Show the result of a Brevo connection verification.
 		$brevo_result = get_transient( 'ifa_brevo_test_result' );
-
-		// Show the result of a Custom SMTP test.
-		$smtp_result = get_transient( 'ifa_smtp_test_result' );
-
-		// Which mailer is active?
-		$active_mailer = 'Default WordPress mail (PHP mail)';
-		if ( class_exists( 'IFA_Smtp' ) && IFA_Smtp::is_configured() ) {
-			$active_mailer = 'Custom SMTP (' . IFA_Smtp::host() . ':' . (int) ifa_get_option( 'smtp_port', 465 ) . ')';
-		} elseif ( class_exists( 'IFA_Brevo' ) && IFA_Brevo::is_configured() ) {
-			$active_mailer = 'Brevo API (' . IFA_Brevo::sender_email() . ')';
-		}
 		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Inner First Aid settings', 'ifa-core' ); ?></h1>
-			<?php settings_errors(); ?>
-
-			<div class="notice" style="margin:10px 0;background:#f0f6ff;border-left-color:#1a4d2e;">
-				<p style="margin:8px 0;">
-					<strong><?php esc_html_e( 'Active mailer:', 'ifa-core' ); ?></strong>
-					<?php echo esc_html( $active_mailer ); ?>
-				</p>
-			</div>
-
-			<?php if ( is_array( $smtp_result ) ) : ?>
-				<div class="notice <?php echo ! empty( $smtp_result['ok'] ) ? 'notice-success' : 'notice-error'; ?>">
-					<p>
-						<strong><?php esc_html_e( 'SMTP test', 'ifa-core' ); ?>:</strong>
-						<?php echo esc_html( $smtp_result['detail'] ); ?>
-					</p>
-				</div>
-			<?php endif; ?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Inner First Aid settings', 'ifa-core' ); ?></h1>
 			<?php settings_errors(); ?>
@@ -573,7 +473,7 @@ class IFA_Settings {
 				<input type="email" name="test_email" required placeholder="<?php echo esc_attr( get_option( 'admin_email' ) ); ?>" class="regular-text">
 				<?php submit_button( __( 'Verify Brevo & send test email', 'ifa-core' ), 'primary', 'submit', false ); ?>
 			</form>
-			<?php if ( class_exists( 'IFA_Brevo' ) && IFA_Brevo::is_configured() && ! ( class_exists( 'IFA_Smtp' ) && IFA_Smtp::is_configured() ) ) : ?>
+			<?php if ( class_exists( 'IFA_Brevo' ) && IFA_Brevo::is_configured() ) : ?>
 				<p class="description" style="margin-top:6px;">
 					<?php
 					echo esc_html(
@@ -587,18 +487,6 @@ class IFA_Settings {
 					?>
 				</p>
 			<?php endif; ?>
-
-			<hr>
-			<h2><?php esc_html_e( 'Test Custom SMTP', 'ifa-core' ); ?></h2>
-			<p class="description">
-				<?php esc_html_e( 'Sends a real test email through the SMTP server above and reports exactly what the server said.', 'ifa-core' ); ?>
-			</p>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:8px;">
-				<input type="hidden" name="action" value="ifa_smtp_test">
-				<?php wp_nonce_field( 'ifa_smtp_test' ); ?>
-				<input type="email" name="test_email" required placeholder="<?php echo esc_attr( get_option( 'admin_email' ) ); ?>" class="regular-text">
-				<?php submit_button( __( 'Test SMTP & send test email', 'ifa-core' ), 'primary', 'submit', false ); ?>
-			</form>
 
 			<hr>
 			<h2><?php esc_html_e( 'Test the guide email delivery', 'ifa-core' ); ?></h2>

@@ -94,10 +94,6 @@ class IFA_Brevo {
 	 * @return mixed
 	 */
 	public function route_mail( $null, $atts ) {
-		// If Custom SMTP is configured, let PHPMailer handle it instead.
-		if ( class_exists( 'IFA_Smtp' ) && IFA_Smtp::is_configured() ) {
-			return $null;
-		}
 		if ( ! self::is_configured() ) {
 			return $null; // not configured — let normal wp_mail run.
 		}
