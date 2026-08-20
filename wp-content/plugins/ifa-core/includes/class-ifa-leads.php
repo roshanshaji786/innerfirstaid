@@ -113,11 +113,20 @@ class IFA_Leads {
 			ip VARCHAR(64) NOT NULL DEFAULT '',
 			created_at DATETIME NOT NULL,
 			PRIMARY KEY  (id),
-			UNIQUE KEY email (email)
+			KEY email (email)
 		) {$charset};";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+
+		// One-time upgrade for existing installs: drop the old UNIQUE index on
+		// email so the same address can be recorded (and emailed) again.
+		// (DROP INDEX on a missing/non-unique index just returns false — safe.)
+		if ( get_option( 'ifa_leads_no_unique' ) !== '1' ) {
+			$wpdb->query( "ALTER TABLE {$table} DROP INDEX email" );
+			$wpdb->query( "ALTER TABLE {$table} ADD KEY email (email)" );
+			update_option( 'ifa_leads_no_unique', '1' );
+		}
 	}
 
 	/**
@@ -168,20 +177,15 @@ class IFA_Leads {
 		}
 		set_transient( $rl_key, $count + 1, HOUR_IN_SECONDS );
 
-		$inserted = $this->insert( array(
+		// Every submission is recorded (even repeat emails) so each person can
+		// receive the guide again and the admin has a full history.
+		$this->insert( array(
 			'email'   => strtolower( $email ),
 			'lang'    => $lang,
 			'source'  => $source,
 			'consent' => $consent,
 			'ip'      => $ip,
 		) );
-
-		if ( false === $inserted ) {
-			// Duplicate email is not an error — the lead already exists.
-			$this->notify( strtolower( $email ), $lang, $source, true );
-			$this->send_guide( strtolower( $email ), $lang );
-			wp_send_json_success( array( 'message' => 'exists' ), 200 );
-		}
 
 		$this->notify( strtolower( $email ), $lang, $source, false );
 		$this->send_guide( strtolower( $email ), $lang );
@@ -297,22 +301,16 @@ class IFA_Leads {
 	}
 
 	/**
-	 * Insert a lead.
+	 * Insert a lead. Every submission creates a new row (no dedup), so repeat
+	 * signups are recorded and re-sent the guide.
 	 *
 	 * @param array $data Lead data.
-	 * @return int|false Insert id or false on duplicate/failure.
+	 * @return int|false Insert id or false on failure.
 	 */
 	public function insert( $data ) {
 		global $wpdb;
 
 		self::maybe_create_table();
-
-		$existing = $wpdb->get_var(
-			$wpdb->prepare( 'SELECT id FROM ' . self::table() . ' WHERE email = %s', $data['email'] )
-		);
-		if ( $existing ) {
-			return false;
-		}
 
 		$ok = $wpdb->insert(
 			self::table(),
