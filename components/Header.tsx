@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Header({ cta, lang }: { cta: string; lang: string }) {
@@ -22,13 +23,15 @@ export default function Header({ cta, lang }: { cta: string; lang: string }) {
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
-        <Link href={homePath} className="flex items-center gap-3 text-primary" aria-label="Inner First Aid Home">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="shrink-0" aria-hidden="true">
-            <circle cx="16" cy="16" r="15" stroke="currentColor" strokeWidth="2" />
-            <path d="M10 16C10 12 13 9 16 9C19 9 22 12 22 16C22 20 19 23 16 23C13 23 10 20 10 16Z" fill="currentColor" opacity="0.2" />
-            <path d="M16 12V20M12 16H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          <span className="text-lg font-bold tracking-tight">innerfirstaid.com</span>
+        <Link href={homePath} className="flex items-center" aria-label="Inner First Aid Home">
+          <Image
+            src="/brand/logo-horizontal.png"
+            alt="Inner First Aid"
+            width={471}
+            height={160}
+            priority
+            className="h-9 lg:h-11 w-auto"
+          />
         </Link>
 
         <button

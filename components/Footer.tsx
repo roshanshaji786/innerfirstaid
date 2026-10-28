@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { Content } from '@/lib/content';
 
 export default function Footer({ content }: { content: Content['footer'] }) {
@@ -5,7 +6,7 @@ export default function Footer({ content }: { content: Content['footer'] }) {
     <footer className="bg-light-bg border-t border-footer-border py-12">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-          <span className="text-lg font-bold text-primary">innerfirstaid.com</span>
+          <Image src="/brand/logo-horizontal.png" alt="Inner First Aid" width={471} height={160} className="h-10 w-auto" />
           <span className="text-sm text-gray-500">{content.copy}</span>
         </div>
         <div className="text-sm mb-4">
