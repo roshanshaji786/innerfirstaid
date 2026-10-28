@@ -111,6 +111,10 @@ if ( ! function_exists( 'ifa_stripe_url' ) ) {
 		if ( ! ifa_is_valid_stripe_url( $url ) ) {
 			return '';
 		}
+		// Tag Payment Links with the program so the webhook knows what was bought.
+		if ( 0 === strpos( $url, 'https://buy.stripe.com/' ) && false === strpos( $url, 'client_reference_id=' ) ) {
+			$url = add_query_arg( 'client_reference_id', $key, $url );
+		}
 		return $url;
 	}
 }

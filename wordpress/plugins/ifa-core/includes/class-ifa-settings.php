@@ -55,6 +55,14 @@ class IFA_Settings {
 			'stripe_en'              => '',
 			'stripe_sl_f'            => '',
 			'stripe_sl_m'            => '',
+			'stripe_webhook_secret'  => '',
+			'brevo_list_en'          => '',
+			'brevo_list_sl_f'        => '',
+			'brevo_list_sl_m'        => '',
+			'welcome_subject_en'     => 'Welcome to the 21-day program',
+			'welcome_subject_sl'     => 'Dobrodosel/a v 21-dnevnem programu',
+			'welcome_message_en'     => "Hi,\n\nthank you for your purchase. Your 21-day program starts now: you will receive one email per day for the next 21 days.\n\nBest,\nthe Inner First Aid team",
+			'welcome_message_sl'     => "Zivjo,\n\nhvala za nakup. Tvoj 21-dnevni program se zacne zdaj: naslednjih 21 dni bos vsak dan prejel/a eno sporocilo.\n\nLep pozdrav,\nekipa Inner First Aid",
 			'ga_id'                  => '',
 			'pixel_id'               => '',
 			'lead_notify_email'      => '',
@@ -137,6 +145,14 @@ class IFA_Settings {
 		$this->add_field( 'ifa_payments', 'stripe_en', __( 'Stripe link — English program', 'ifa-core' ), 'url' );
 		$this->add_field( 'ifa_payments', 'stripe_sl_f', __( 'Stripe link — Slovenian (female)', 'ifa-core' ), 'url' );
 		$this->add_field( 'ifa_payments', 'stripe_sl_m', __( 'Stripe link — Slovenian (male)', 'ifa-core' ), 'url' );
+		$this->add_field( 'ifa_payments', 'stripe_webhook_secret', __( 'Stripe webhook signing secret (starts with whsec_)', 'ifa-core' ), 'password' );
+		$this->add_field( 'ifa_payments', 'brevo_list_en', __( 'Brevo list ID for buyers — English program', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_payments', 'brevo_list_sl_f', __( 'Brevo list ID for buyers — Slovenian (female)', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_payments', 'brevo_list_sl_m', __( 'Brevo list ID for buyers — Slovenian (male)', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_payments', 'welcome_subject_en', __( 'Purchase welcome email subject (EN)', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_payments', 'welcome_subject_sl', __( 'Purchase welcome email subject (SL)', 'ifa-core' ), 'text' );
+		$this->add_field( 'ifa_payments', 'welcome_message_en', __( 'Purchase welcome email message (EN)', 'ifa-core' ), 'textarea' );
+		$this->add_field( 'ifa_payments', 'welcome_message_sl', __( 'Purchase welcome email message (SL)', 'ifa-core' ), 'textarea' );
 
 		$this->add_field( 'ifa_brevo', 'brevo_api_key', __( 'Brevo SMTP API key (Settings → SMTP & API, starts with xkeysib-)', 'ifa-core' ), 'password' );
 		$this->add_field( 'ifa_brevo', 'brevo_sender_email', __( 'Brevo sender email (must be verified in Brevo → Senders)', 'ifa-core' ), 'email' );
@@ -263,6 +279,17 @@ class IFA_Settings {
 			}
 		}
 
+		// Live status for the webhook secret.
+		if ( 'stripe_webhook_secret' === $key ) {
+			if ( '' === $val ) {
+				echo ' <span style="color:#9ca3af;">— ' . esc_html__( 'empty (payments work, but the program is not delivered automatically)', 'ifa-core' ) . '</span>';
+			} elseif ( 0 !== strpos( $val, 'whsec_' ) ) {
+				echo ' <span style="color:#b3261e;font-weight:600;">✖ ' . esc_html__( 'invalid format — copy the "Signing secret" of the webhook endpoint in Stripe', 'ifa-core' ) . '</span>';
+			} else {
+				echo ' <span style="color:#1a7f37;font-weight:600;">✔ ' . esc_html__( 'set', 'ifa-core' ) . '</span>';
+			}
+		}
+
 		// Live status for the Brevo API key field.
 		if ( 'brevo_api_key' === $key ) {
 			if ( '' === $val ) {
@@ -317,6 +344,17 @@ class IFA_Settings {
 	 */
 	public function section_payments() {
 		echo '<p class="description">' . esc_html__( 'Create Payment Links in your Stripe Dashboard and paste them here. Buttons stay disabled until a valid https://buy.stripe.com/ link is set.', 'ifa-core' ) . '</p>';
+		echo '<p class="description"><strong>' . esc_html__( 'Automatic program delivery:', 'ifa-core' ) . '</strong></p>';
+		echo '<ol class="description" style="list-style:decimal;margin-left:1.2em;">';
+		echo '<li>' . esc_html__( 'Stripe → Developers → Webhooks → Add endpoint. URL:', 'ifa-core' ) . ' <code>' . esc_html( IFA_Stripe::webhook_url() ) . '</code></li>';
+		echo '<li>' . esc_html__( 'Events: checkout.session.completed, checkout.session.async_payment_succeeded, charge.refunded. Save, then copy the "Signing secret" (whsec_...) below.', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'In Brevo, create one contact list per program and a "Contact added to list" automation that sends the 21 daily emails. Enter the list IDs below (the Brevo API key above must be set).', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'In each Payment Link → After payment → redirect customers to your thank-you page.', 'ifa-core' ) . '</li>';
+		echo '</ol>';
+		$last = get_option( 'ifa_stripe_last_event', array() );
+		if ( ! empty( $last ) ) {
+			echo '<p class="description"><strong>' . esc_html__( 'Last webhook:', 'ifa-core' ) . '</strong> ' . esc_html( $last['status'] . ' — ' . $last['detail'] . ' — ' . $last['time'] ) . '</p>';
+		}
 	}
 
 	/**
@@ -336,10 +374,25 @@ class IFA_Settings {
 			'cookie_text_en', 'cookie_text_sl', 'cookie_accept_en', 'cookie_accept_sl',
 			'cookie_decline_en', 'cookie_decline_sl', 'ga_id', 'pixel_id',
 			'guide_subject_en', 'guide_subject_sl', 'guide_message_en', 'guide_message_sl',
+			'welcome_subject_en', 'welcome_subject_sl',
 		);
 		foreach ( $texts as $k ) {
 			if ( isset( $input[ $k ] ) ) {
 				$out[ $k ] = sanitize_text_field( $input[ $k ] );
+			}
+		}
+
+		foreach ( array( 'welcome_message_en', 'welcome_message_sl' ) as $k ) {
+			if ( isset( $input[ $k ] ) ) {
+				$out[ $k ] = sanitize_textarea_field( $input[ $k ] );
+			}
+		}
+		if ( isset( $input['stripe_webhook_secret'] ) ) {
+			$out['stripe_webhook_secret'] = trim( sanitize_text_field( $input['stripe_webhook_secret'] ) );
+		}
+		foreach ( array( 'brevo_list_en', 'brevo_list_sl_f', 'brevo_list_sl_m' ) as $k ) {
+			if ( isset( $input[ $k ] ) ) {
+				$out[ $k ] = absint( $input[ $k ] ) ? (string) absint( $input[ $k ] ) : '';
 			}
 		}
 
