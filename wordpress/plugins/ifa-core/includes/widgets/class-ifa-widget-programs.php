@@ -1,6 +1,6 @@
 <?php
 /**
- * IFA Programs widget — two program cards with Stripe CTA / gender picker.
+ * IFA Programs widget — two program cards with checkout CTA / gender picker.
  *
  * @package ifa-core
  */
@@ -146,9 +146,9 @@ class IFA_Widget_Programs extends \Elementor\Widget_Base {
 		$this->add_control(
 			'card1_custom_link',
 			array(
-				'label'     => __( 'Card 1 — custom Stripe link', 'ifa-core' ),
+				'label'     => __( 'Card 1 — custom checkout link', 'ifa-core' ),
 				'type'      => \Elementor\Controls_Manager::URL,
-				'placeholder' => 'https://buy.stripe.com/...',
+				'placeholder' => 'https://STORE.lemonsqueezy.com/checkout/buy/...',
 				'condition' => array( 'card1_link_source' => 'custom' ),
 			)
 		);

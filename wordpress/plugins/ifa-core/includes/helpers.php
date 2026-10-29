@@ -82,9 +82,8 @@ if ( ! function_exists( 'ifa_is_sl' ) ) {
 }
 
 /**
- * Is a URL a usable Stripe payment link?
- * Accepts Payment Links (buy.stripe.com/...) and hosted Checkout sessions
- * (checkout.stripe.com/c/pay/...).
+ * Is a URL a usable checkout link?
+ * Accepts Lemon Squeezy checkout links (STORE.lemonsqueezy.com/checkout/buy/...).
  *
  * @param string $url URL to check.
  * @return bool
@@ -95,12 +94,12 @@ if ( ! function_exists( 'ifa_is_valid_stripe_url' ) ) {
 		if ( '' === $url || 'placeholder' === $url || false !== strpos( $url, 'REPLACE' ) ) {
 			return false;
 		}
-		return (bool) preg_match( '#^https://(buy\.stripe\.com/|checkout\.stripe\.com/c/pay/).*#', $url );
+		return (bool) preg_match( '#^https://[a-z0-9-]+\.lemonsqueezy\.com/checkout/buy/.*#i', $url );
 	}
 }
 
 /**
- * Get a valid Stripe payment URL from settings, or ''.
+ * Get a valid checkout URL from settings, or ''.
  *
  * @param string $key Option key.
  * @return string
@@ -111,9 +110,9 @@ if ( ! function_exists( 'ifa_stripe_url' ) ) {
 		if ( ! ifa_is_valid_stripe_url( $url ) ) {
 			return '';
 		}
-		// Tag Payment Links with the program so the webhook knows what was bought.
-		if ( 0 === strpos( $url, 'https://buy.stripe.com/' ) && false === strpos( $url, 'client_reference_id=' ) ) {
-			$url = add_query_arg( 'client_reference_id', $key, $url );
+		// Tag the checkout with its program so the webhook knows what was bought.
+		if ( false === strpos( $url, 'checkout[custom][program]' ) ) {
+			$url = add_query_arg( 'checkout[custom][program]', substr( $key, 7 ), $url );
 		}
 		return $url;
 	}

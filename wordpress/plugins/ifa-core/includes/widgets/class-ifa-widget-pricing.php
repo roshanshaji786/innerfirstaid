@@ -1,6 +1,6 @@
 <?php
 /**
- * IFA Pricing widget — CTA band with old/new price and Stripe button.
+ * IFA Pricing widget — CTA band with old/new price and checkout button.
  *
  * @package ifa-core
  */
@@ -131,9 +131,9 @@ class IFA_Widget_Pricing extends \Elementor\Widget_Base {
 		$this->add_control(
 			'custom_link',
 			array(
-				'label'       => __( 'Custom Stripe link', 'ifa-core' ),
+				'label'       => __( 'Custom checkout link', 'ifa-core' ),
 				'type'        => \Elementor\Controls_Manager::URL,
-				'placeholder' => 'https://buy.stripe.com/...',
+				'placeholder' => 'https://STORE.lemonsqueezy.com/checkout/buy/...',
 				'condition'   => array( 'link_source' => 'custom' ),
 			)
 		);

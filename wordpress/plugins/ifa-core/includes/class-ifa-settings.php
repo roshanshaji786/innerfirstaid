@@ -55,7 +55,7 @@ class IFA_Settings {
 			'stripe_en'              => '',
 			'stripe_sl_f'            => '',
 			'stripe_sl_m'            => '',
-			'stripe_webhook_secret'  => '',
+			'lemonsqueezy_webhook_secret' => '',
 			'brevo_list_en'          => '',
 			'brevo_list_sl_f'        => '',
 			'brevo_list_sl_m'        => '',
@@ -133,7 +133,7 @@ class IFA_Settings {
 			)
 		);
 
-		add_settings_section( 'ifa_payments', __( 'Payments (Stripe)', 'ifa-core' ), array( $this, 'section_payments' ), 'ifa-settings' );
+		add_settings_section( 'ifa_payments', __( 'Payments (Lemon Squeezy)', 'ifa-core' ), array( $this, 'section_payments' ), 'ifa-settings' );
 		add_settings_section( 'ifa_brevo', __( 'Email delivery (Brevo — built-in)', 'ifa-core' ), array( $this, 'section_brevo' ), 'ifa-settings' );
 		add_settings_section( 'ifa_spam', __( 'Form protection (reCAPTCHA) & consent', 'ifa-core' ), array( $this, 'section_spam' ), 'ifa-settings' );
 		add_settings_section( 'ifa_analytics', __( 'Analytics (loaded only after cookie consent)', 'ifa-core' ), '__return_false', 'ifa-settings' );
@@ -142,10 +142,10 @@ class IFA_Settings {
 		add_settings_section( 'ifa_cookie', __( 'Cookie banner', 'ifa-core' ), '__return_false', 'ifa-settings' );
 		add_settings_section( 'ifa_links', __( 'Page URLs', 'ifa-core' ), '__return_false', 'ifa-settings' );
 
-		$this->add_field( 'ifa_payments', 'stripe_en', __( 'Stripe link — English program', 'ifa-core' ), 'url' );
-		$this->add_field( 'ifa_payments', 'stripe_sl_f', __( 'Stripe link — Slovenian (female)', 'ifa-core' ), 'url' );
-		$this->add_field( 'ifa_payments', 'stripe_sl_m', __( 'Stripe link — Slovenian (male)', 'ifa-core' ), 'url' );
-		$this->add_field( 'ifa_payments', 'stripe_webhook_secret', __( 'Stripe webhook signing secret (starts with whsec_)', 'ifa-core' ), 'password' );
+		$this->add_field( 'ifa_payments', 'stripe_en', __( 'Checkout link — English program', 'ifa-core' ), 'url' );
+		$this->add_field( 'ifa_payments', 'stripe_sl_f', __( 'Checkout link — Slovenian (female)', 'ifa-core' ), 'url' );
+		$this->add_field( 'ifa_payments', 'stripe_sl_m', __( 'Checkout link — Slovenian (male)', 'ifa-core' ), 'url' );
+		$this->add_field( 'ifa_payments', 'lemonsqueezy_webhook_secret', __( 'Lemon Squeezy webhook signing secret', 'ifa-core' ), 'password' );
 		$this->add_field( 'ifa_payments', 'brevo_list_en', __( 'Brevo list ID for buyers — English program', 'ifa-core' ), 'text' );
 		$this->add_field( 'ifa_payments', 'brevo_list_sl_f', __( 'Brevo list ID for buyers — Slovenian (female)', 'ifa-core' ), 'text' );
 		$this->add_field( 'ifa_payments', 'brevo_list_sl_m', __( 'Brevo list ID for buyers — Slovenian (male)', 'ifa-core' ), 'text' );
@@ -266,13 +266,13 @@ class IFA_Settings {
 			'password' === $type ? 'autocomplete="new-password" ' : ''
 		);
 
-		// Live status for Stripe link fields.
+		// Live status for checkout link fields.
 		if ( in_array( $key, array( 'stripe_en', 'stripe_sl_f', 'stripe_sl_m' ), true ) ) {
 			if ( '' !== $val && function_exists( 'ifa_is_valid_stripe_url' ) ) {
 				if ( ifa_is_valid_stripe_url( $val ) ) {
 					echo ' <span style="color:#1a7f37;font-weight:600;">✔ ' . esc_html__( 'active — buttons are live', 'ifa-core' ) . '</span>';
 				} else {
-					echo ' <span style="color:#b35900;font-weight:600;">⚠ ' . esc_html__( 'not accepted — must start with https://buy.stripe.com/ or https://checkout.stripe.com/c/pay/', 'ifa-core' ) . '</span>';
+					echo ' <span style="color:#b35900;font-weight:600;">⚠ ' . esc_html__( 'not accepted — must be a Lemon Squeezy checkout link (https://STORE.lemonsqueezy.com/checkout/buy/...)', 'ifa-core' ) . '</span>';
 				}
 			} elseif ( '' === $val ) {
 				echo ' <span style="color:#9ca3af;">— ' . esc_html__( 'empty (buttons stay disabled)', 'ifa-core' ) . '</span>';
@@ -280,11 +280,11 @@ class IFA_Settings {
 		}
 
 		// Live status for the webhook secret.
-		if ( 'stripe_webhook_secret' === $key ) {
+		if ( 'lemonsqueezy_webhook_secret' === $key ) {
 			if ( '' === $val ) {
 				echo ' <span style="color:#9ca3af;">— ' . esc_html__( 'empty (payments work, but the program is not delivered automatically)', 'ifa-core' ) . '</span>';
 			} elseif ( 0 !== strpos( $val, 'whsec_' ) ) {
-				echo ' <span style="color:#b3261e;font-weight:600;">✖ ' . esc_html__( 'invalid format — copy the "Signing secret" of the webhook endpoint in Stripe', 'ifa-core' ) . '</span>';
+				echo ' <span style="color:#b3261e;font-weight:600;">✖ ' . esc_html__( 'not set yet — copy the "Signing secret" from the webhook in Lemon Squeezy', 'ifa-core' ) . '</span>';
 			} else {
 				echo ' <span style="color:#1a7f37;font-weight:600;">✔ ' . esc_html__( 'set', 'ifa-core' ) . '</span>';
 			}
@@ -343,15 +343,15 @@ class IFA_Settings {
 	 * Payments section help.
 	 */
 	public function section_payments() {
-		echo '<p class="description">' . esc_html__( 'Create Payment Links in your Stripe Dashboard and paste them here. Buttons stay disabled until a valid https://buy.stripe.com/ link is set.', 'ifa-core' ) . '</p>';
+		echo '<p class="description">' . esc_html__( 'Create one product with three variants (EN, SL female, SL male) in Lemon Squeezy, copy each variant\'s checkout link and paste it here. Buttons stay disabled until a valid Lemon Squeezy checkout link is set.', 'ifa-core' ) . '</p>';
 		echo '<p class="description"><strong>' . esc_html__( 'Automatic program delivery:', 'ifa-core' ) . '</strong></p>';
 		echo '<ol class="description" style="list-style:decimal;margin-left:1.2em;">';
-		echo '<li>' . esc_html__( 'Stripe → Developers → Webhooks → Add endpoint. URL:', 'ifa-core' ) . ' <code>' . esc_html( IFA_Stripe::webhook_url() ) . '</code></li>';
-		echo '<li>' . esc_html__( 'Events: checkout.session.completed, checkout.session.async_payment_succeeded, charge.refunded. Save, then copy the "Signing secret" (whsec_...) below.', 'ifa-core' ) . '</li>';
+		echo '<li>' . esc_html__( 'Lemon Squeezy → Settings → Webhooks → Add webhook. URL:', 'ifa-core' ) . ' <code>' . esc_html( IFA_Payments::webhook_url() ) . '</code></li>';
+		echo '<li>' . esc_html__( 'Events: order_created and order_refunded. Set a signing secret, save, then paste the same secret below.', 'ifa-core' ) . '</li>';
 		echo '<li>' . esc_html__( 'In Brevo, create one contact list per program and a "Contact added to list" automation that sends the 21 daily emails. Enter the list IDs below (the Brevo API key above must be set).', 'ifa-core' ) . '</li>';
 		echo '<li>' . esc_html__( 'In each Payment Link → After payment → redirect customers to your thank-you page.', 'ifa-core' ) . '</li>';
 		echo '</ol>';
-		$last = get_option( 'ifa_stripe_last_event', array() );
+		$last = get_option( 'ifa_payments_last_event', array() );
 		if ( ! empty( $last ) ) {
 			echo '<p class="description"><strong>' . esc_html__( 'Last webhook:', 'ifa-core' ) . '</strong> ' . esc_html( $last['status'] . ' — ' . $last['detail'] . ' — ' . $last['time'] ) . '</p>';
 		}
@@ -387,8 +387,8 @@ class IFA_Settings {
 				$out[ $k ] = sanitize_textarea_field( $input[ $k ] );
 			}
 		}
-		if ( isset( $input['stripe_webhook_secret'] ) ) {
-			$out['stripe_webhook_secret'] = trim( sanitize_text_field( $input['stripe_webhook_secret'] ) );
+		if ( isset( $input['lemonsqueezy_webhook_secret'] ) ) {
+			$out['lemonsqueezy_webhook_secret'] = trim( sanitize_text_field( $input['lemonsqueezy_webhook_secret'] ) );
 		}
 		foreach ( array( 'brevo_list_en', 'brevo_list_sl_f', 'brevo_list_sl_m' ) as $k ) {
 			if ( isset( $input[ $k ] ) ) {

@@ -1,11 +1,11 @@
 <?php
 /**
- * Stripe webhook: delivers the paid program after a Payment Link checkout.
+ * Lemon Squeezy webhook: delivers the paid program after a checkout.
  *
- * Flow: buyer pays on a Stripe Payment Link -> Stripe calls
- * /wp-json/ifa/v1/stripe-webhook -> we verify the signature, record the
- * order, add the buyer to the program's Brevo list (which starts the
- * 21-day email automation in Brevo) and send a welcome email.
+ * Flow: buyer pays on a Lemon Squeezy checkout link -> Lemon Squeezy calls
+ * /wp-json/ifa/v1/lemonsqueezy-webhook -> we verify the signature, record the
+ * order, add the buyer to the program's Brevo list (which starts the 21-day
+ * email automation in Brevo) and send a welcome email.
  *
  * @package ifa-core
  */
@@ -15,9 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class IFA_Stripe
+ * Class IFA_Payments
  */
-class IFA_Stripe {
+class IFA_Payments {
 
 	/**
 	 * Orders table (without prefix).
@@ -25,26 +25,21 @@ class IFA_Stripe {
 	const TABLE = 'ifa_orders';
 
 	/**
-	 * Allowed signature age in seconds (Stripe's default tolerance).
+	 * Program slugs. Checkout links carry them as checkout[custom][program].
 	 */
-	const TOLERANCE = 300;
-
-	/**
-	 * Program keys = the Payment Link option keys.
-	 */
-	const PROGRAMS = array( 'stripe_en', 'stripe_sl_f', 'stripe_sl_m' );
+	const PROGRAMS = array( 'en', 'sl_f', 'sl_m' );
 
 	/**
 	 * Singleton.
 	 *
-	 * @var IFA_Stripe|null
+	 * @var IFA_Payments|null
 	 */
 	private static $instance = null;
 
 	/**
 	 * Get instance.
 	 *
-	 * @return IFA_Stripe
+	 * @return IFA_Payments
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -62,22 +57,22 @@ class IFA_Stripe {
 	}
 
 	/**
-	 * Public webhook URL to paste into Stripe.
+	 * Public webhook URL to paste into Lemon Squeezy.
 	 *
 	 * @return string
 	 */
 	public static function webhook_url() {
-		return rest_url( 'ifa/v1/stripe-webhook' );
+		return rest_url( 'ifa/v1/lemonsqueezy-webhook' );
 	}
 
 	/**
-	 * Language of a program key.
+	 * Language of a program slug.
 	 *
-	 * @param string $program Program key.
+	 * @param string $program Program slug.
 	 * @return string
 	 */
 	public static function program_lang( $program ) {
-		return 0 === strpos( $program, 'stripe_sl' ) ? 'sl' : 'en';
+		return 0 === strpos( $program, 'sl' ) ? 'sl' : 'en';
 	}
 
 	/**
@@ -101,8 +96,7 @@ class IFA_Stripe {
 
 		$sql = "CREATE TABLE {$table} (
 			id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-			session_id VARCHAR(191) NOT NULL,
-			payment_intent VARCHAR(191) NOT NULL DEFAULT '',
+			order_ref VARCHAR(191) NOT NULL,
 			email VARCHAR(191) NOT NULL DEFAULT '',
 			name VARCHAR(191) NOT NULL DEFAULT '',
 			program VARCHAR(32) NOT NULL DEFAULT '',
@@ -113,8 +107,7 @@ class IFA_Stripe {
 			delivery VARCHAR(255) NOT NULL DEFAULT '',
 			created_at DATETIME NOT NULL,
 			PRIMARY KEY  (id),
-			UNIQUE KEY session_id (session_id),
-			KEY payment_intent (payment_intent),
+			UNIQUE KEY order_ref (order_ref),
 			KEY email (email)
 		) {$charset};";
 
@@ -128,53 +121,29 @@ class IFA_Stripe {
 	public function register_route() {
 		register_rest_route(
 			'ifa/v1',
-			'/stripe-webhook',
+			'/lemonsqueezy-webhook',
 			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'handle_webhook' ),
-				'permission_callback' => '__return_true', // Authenticated by the Stripe signature.
+				'permission_callback' => '__return_true', // Authenticated by the X-Signature header.
 			)
 		);
 	}
 
 	/**
-	 * Verify a Stripe-Signature header.
+	 * Verify a Lemon Squeezy X-Signature header: hex HMAC-SHA256 of the raw body.
 	 *
-	 * @param string $payload Raw request body.
-	 * @param string $header  Stripe-Signature header.
-	 * @param string $secret  Endpoint signing secret (whsec_...).
+	 * @param string $payload   Raw request body.
+	 * @param string $signature X-Signature header.
+	 * @param string $secret    Webhook signing secret.
 	 * @return bool
 	 */
-	public static function verify_signature( $payload, $header, $secret ) {
-		if ( '' === $secret || '' === $header ) {
+	public static function verify_signature( $payload, $signature, $secret ) {
+		if ( '' === $secret || '' === $signature ) {
 			return false;
 		}
-
-		$timestamp  = 0;
-		$signatures = array();
-		foreach ( explode( ',', $header ) as $part ) {
-			$kv = explode( '=', trim( $part ), 2 );
-			if ( 2 !== count( $kv ) ) {
-				continue;
-			}
-			if ( 't' === $kv[0] ) {
-				$timestamp = (int) $kv[1];
-			} elseif ( 'v1' === $kv[0] ) {
-				$signatures[] = $kv[1];
-			}
-		}
-
-		if ( ! $timestamp || empty( $signatures ) || abs( time() - $timestamp ) > self::TOLERANCE ) {
-			return false;
-		}
-
-		$expected = hash_hmac( 'sha256', $timestamp . '.' . $payload, $secret );
-		foreach ( $signatures as $sig ) {
-			if ( hash_equals( $expected, $sig ) ) {
-				return true;
-			}
-		}
-		return false;
+		$expected = hash_hmac( 'sha256', $payload, $secret );
+		return hash_equals( $expected, strtolower( trim( $signature ) ) );
 	}
 
 	/**
@@ -184,46 +153,37 @@ class IFA_Stripe {
 	 * @return WP_REST_Response
 	 */
 	public function handle_webhook( $request ) {
-		$payload = (string) $request->get_body();
-		$header  = (string) $request->get_header( 'stripe_signature' );
-		$secret  = trim( (string) ifa_get_option( 'stripe_webhook_secret', '' ) );
+		$payload   = (string) $request->get_body();
+		$signature = (string) $request->get_header( 'x_signature' );
+		$secret    = trim( (string) ifa_get_option( 'lemonsqueezy_webhook_secret', '' ) );
 
-		if ( ! self::verify_signature( $payload, $header, $secret ) ) {
-			self::log_event( 'rejected', 'Invalid or missing Stripe signature' );
+		if ( ! self::verify_signature( $payload, $signature, $secret ) ) {
+			self::log_event( 'rejected', 'Invalid or missing X-Signature' );
 			return new WP_REST_Response( array( 'error' => 'invalid signature' ), 400 );
 		}
 
 		$event = json_decode( $payload, true );
-		if ( ! is_array( $event ) || empty( $event['type'] ) || ! isset( $event['data']['object'] ) ) {
+		if ( ! is_array( $event ) || empty( $event['meta']['event_name'] ) || empty( $event['data']['id'] ) ) {
 			self::log_event( 'rejected', 'Malformed event' );
 			return new WP_REST_Response( array( 'error' => 'malformed event' ), 400 );
 		}
 
-		$type   = (string) $event['type'];
-		$object = (array) $event['data']['object'];
+		$type = (string) $event['meta']['event_name'];
 
 		try {
 			switch ( $type ) {
-				case 'checkout.session.completed':
-					// Card payments are paid now; bank methods (SEPA etc.) may
-					// still be pending and arrive as async_payment_succeeded.
-					if ( isset( $object['payment_status'] ) && 'unpaid' === $object['payment_status'] ) {
-						$result = 'waiting for async payment';
-					} else {
-						$result = $this->fulfill( $object );
-					}
+				case 'order_created':
+					$status = isset( $event['data']['attributes']['status'] ) ? (string) $event['data']['attributes']['status'] : '';
+					$result = 'paid' === $status ? $this->fulfill( $event ) : 'waiting (status: ' . $status . ')';
 					break;
-				case 'checkout.session.async_payment_succeeded':
-					$result = $this->fulfill( $object );
-					break;
-				case 'charge.refunded':
-					$result = $this->refund( $object );
+				case 'order_refunded':
+					$result = $this->refund( $event );
 					break;
 				default:
 					$result = 'ignored';
 			}
 		} catch ( Exception $e ) {
-			// A 500 makes Stripe retry later.
+			// A 500 makes Lemon Squeezy retry later.
 			self::log_event( 'error', $type . ': ' . $e->getMessage() );
 			return new WP_REST_Response( array( 'error' => 'processing failed' ), 500 );
 		}
@@ -233,81 +193,60 @@ class IFA_Stripe {
 	}
 
 	/**
-	 * Which program a Checkout Session bought.
-	 * Payment Link metadata "ifa_program" wins, then the client_reference_id
-	 * that ifa_stripe_url() adds to every button link.
+	 * Which program an order bought, from the checkout link's custom data.
 	 *
-	 * @param array $session Checkout Session.
-	 * @return string
+	 * @param array $event Webhook event.
+	 * @return string Program slug, or '' when unknown.
 	 */
-	public static function resolve_program( $session ) {
-		$candidates = array();
-		if ( isset( $session['metadata']['ifa_program'] ) ) {
-			$candidates[] = (string) $session['metadata']['ifa_program'];
-		}
-		if ( isset( $session['client_reference_id'] ) ) {
-			$candidates[] = (string) $session['client_reference_id'];
-		}
-		foreach ( $candidates as $c ) {
-			$c = 0 === strpos( $c, 'stripe_' ) ? $c : 'stripe_' . $c; // Accept "en" or "stripe_en".
-			if ( in_array( $c, self::PROGRAMS, true ) ) {
-				return $c;
-			}
-		}
-		return 'stripe_en';
+	public static function resolve_program( $event ) {
+		$program = isset( $event['meta']['custom_data']['program'] ) ? (string) $event['meta']['custom_data']['program'] : '';
+		return in_array( $program, self::PROGRAMS, true ) ? $program : '';
 	}
 
 	/**
-	 * Record a paid order and deliver the program (idempotent per session).
+	 * Record a paid order and deliver the program (idempotent per order).
 	 *
-	 * @param array $session Checkout Session.
+	 * @param array $event Webhook event.
 	 * @return string Result summary for the log.
 	 * @throws Exception When the order cannot be stored.
 	 */
-	private function fulfill( $session ) {
+	private function fulfill( $event ) {
 		global $wpdb;
 
-		$session_id = isset( $session['id'] ) ? (string) $session['id'] : '';
-		if ( '' === $session_id ) {
-			throw new Exception( 'Session without id' );
-		}
+		$attr      = (array) $event['data']['attributes'];
+		$order_ref = (string) $event['data']['id'];
 
 		self::maybe_create_table();
 		$table = self::table();
 
-		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE session_id = %s", $session_id ) );
+		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE order_ref = %s", $order_ref ) );
 		if ( $existing ) {
 			return 'already delivered (order #' . $existing . ')';
 		}
 
-		$details = isset( $session['customer_details'] ) ? (array) $session['customer_details'] : array();
-		$email   = isset( $details['email'] ) ? sanitize_email( $details['email'] ) : '';
-		if ( '' === $email && isset( $session['customer_email'] ) ) {
-			$email = sanitize_email( $session['customer_email'] );
-		}
-		$name    = isset( $details['name'] ) ? sanitize_text_field( $details['name'] ) : '';
-		$program = self::resolve_program( $session );
+		$email   = isset( $attr['user_email'] ) ? sanitize_email( $attr['user_email'] ) : '';
+		$name    = isset( $attr['user_name'] ) ? sanitize_text_field( $attr['user_name'] ) : '';
+		$program = self::resolve_program( $event );
 		$lang    = self::program_lang( $program );
 
 		$ok = $wpdb->insert(
 			$table,
 			array(
-				'session_id'     => $session_id,
-				'payment_intent' => isset( $session['payment_intent'] ) ? (string) $session['payment_intent'] : '',
-				'email'          => $email,
-				'name'           => $name,
-				'program'        => $program,
-				'amount'         => isset( $session['amount_total'] ) ? (int) $session['amount_total'] : 0,
-				'currency'       => isset( $session['currency'] ) ? strtoupper( (string) $session['currency'] ) : '',
-				'status'         => 'paid',
-				'livemode'       => ! empty( $session['livemode'] ) ? 1 : 0,
-				'created_at'     => current_time( 'mysql' ),
+				'order_ref'  => $order_ref,
+				'email'      => $email,
+				'name'       => $name,
+				'program'    => $program,
+				'amount'     => isset( $attr['total'] ) ? (int) $attr['total'] : 0,
+				'currency'   => isset( $attr['currency'] ) ? strtoupper( (string) $attr['currency'] ) : '',
+				'status'     => 'paid',
+				'livemode'   => empty( $attr['test_mode'] ) ? 1 : 0,
+				'created_at' => current_time( 'mysql' ),
 			),
-			array( '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%s' )
+			array( '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%d', '%s' )
 		);
 		if ( ! $ok ) {
 			// Lost a race with a parallel retry of the same event.
-			if ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE session_id = %s", $session_id ) ) ) {
+			if ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE order_ref = %s", $order_ref ) ) ) {
 				return 'already delivered';
 			}
 			throw new Exception( 'Could not store order: ' . $wpdb->last_error );
@@ -315,13 +254,16 @@ class IFA_Stripe {
 		$order_id = (int) $wpdb->insert_id;
 
 		$notes = array();
+		if ( '' === $program ) {
+			$notes[] = 'unknown program in checkout link (check manually)';
+		}
 		if ( ! is_email( $email ) ) {
 			$notes[] = 'no buyer email';
 		} else {
-			$notes[] = $this->add_to_brevo_list( $email, $name, $program, $lang );
+			$notes[] = $this->add_to_brevo_list( $email, $name, $program );
 			$notes[] = $this->send_welcome( $email, $lang ) ? 'welcome sent' : 'welcome not sent';
 		}
-		$this->notify_admin( $email, $name, $program, $session );
+		$this->notify_admin( $email, $name, $program, $attr );
 
 		$delivery = implode( '; ', $notes );
 		$wpdb->update( $table, array( 'delivery' => substr( $delivery, 0, 255 ) ), array( 'id' => $order_id ), array( '%s' ), array( '%d' ) );
@@ -330,21 +272,19 @@ class IFA_Stripe {
 	}
 
 	/**
-	 * Mark a fully refunded order and take the buyer off the program list.
+	 * Mark a refunded order and take the buyer off the program list.
 	 *
-	 * @param array $charge Charge object.
+	 * @param array $event Webhook event.
 	 * @return string
 	 */
-	private function refund( $charge ) {
+	private function refund( $event ) {
 		global $wpdb;
 
-		if ( empty( $charge['refunded'] ) || empty( $charge['payment_intent'] ) ) {
-			return 'partial refund, no change';
-		}
+		$order_ref = (string) $event['data']['id'];
 
 		self::maybe_create_table();
 		$table = self::table();
-		$order = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE payment_intent = %s", (string) $charge['payment_intent'] ) );
+		$order = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE order_ref = %s", $order_ref ) );
 		if ( ! $order ) {
 			return 'no matching order';
 		}
@@ -368,11 +308,14 @@ class IFA_Stripe {
 	/**
 	 * Brevo list id configured for a program.
 	 *
-	 * @param string $program Program key.
+	 * @param string $program Program slug.
 	 * @return int
 	 */
 	public static function list_id( $program ) {
-		return absint( ifa_get_option( 'brevo_list_' . substr( $program, 7 ), 0 ) );
+		if ( '' === $program ) {
+			return 0;
+		}
+		return absint( ifa_get_option( 'brevo_list_' . $program, 0 ) );
 	}
 
 	/**
@@ -393,11 +336,10 @@ class IFA_Stripe {
 	 *
 	 * @param string $email   Buyer email.
 	 * @param string $name    Buyer name.
-	 * @param string $program Program key.
-	 * @param string $lang    Language.
+	 * @param string $program Program slug.
 	 * @return string Result note.
 	 */
-	private function add_to_brevo_list( $email, $name, $program, $lang ) {
+	private function add_to_brevo_list( $email, $name, $program ) {
 		$list = self::list_id( $program );
 		if ( ! $list ) {
 			return 'no Brevo list set';
@@ -485,17 +427,17 @@ class IFA_Stripe {
 	 *
 	 * @param string $email   Buyer email.
 	 * @param string $name    Buyer name.
-	 * @param string $program Program key.
-	 * @param array  $session Checkout Session.
+	 * @param string $program Program slug.
+	 * @param array  $attr    Order attributes.
 	 */
-	private function notify_admin( $email, $name, $program, $session ) {
+	private function notify_admin( $email, $name, $program, $attr ) {
 		$to = ifa_get_option( 'lead_notify_email', '' );
 		if ( ! is_email( $to ) ) {
 			return;
 		}
-		$amount = isset( $session['amount_total'] ) ? number_format( $session['amount_total'] / 100, 2 ) : '?';
-		$cur    = isset( $session['currency'] ) ? strtoupper( $session['currency'] ) : '';
-		$mode   = ! empty( $session['livemode'] ) ? '' : ' [TEST]';
+		$amount = isset( $attr['total'] ) ? number_format( $attr['total'] / 100, 2 ) : '?';
+		$cur    = isset( $attr['currency'] ) ? strtoupper( $attr['currency'] ) : '';
+		$mode   = empty( $attr['test_mode'] ) ? '' : ' [TEST]';
 		wp_mail(
 			$to,
 			'New Inner First Aid order' . $mode . ': ' . $amount . ' ' . $cur,
@@ -511,7 +453,7 @@ class IFA_Stripe {
 	 */
 	private static function log_event( $status, $detail ) {
 		update_option(
-			'ifa_stripe_last_event',
+			'ifa_payments_last_event',
 			array(
 				'status' => $status,
 				'detail' => substr( $detail, 0, 300 ),
@@ -551,7 +493,7 @@ class IFA_Stripe {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Orders', 'ifa-core' ); ?></h1>
-			<p><?php esc_html_e( 'Paid Stripe checkouts received by the webhook (latest 200). Stripe stays the source of truth for payments.', 'ifa-core' ); ?></p>
+			<p><?php esc_html_e( 'Paid Lemon Squeezy orders received by the webhook (latest 200). Lemon Squeezy stays the source of truth for payments.', 'ifa-core' ); ?></p>
 			<table class="widefat striped">
 				<thead>
 					<tr>
