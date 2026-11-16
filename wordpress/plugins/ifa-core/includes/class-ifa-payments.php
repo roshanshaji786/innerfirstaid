@@ -86,10 +86,19 @@ class IFA_Payments {
 	}
 
 	/**
-	 * Create the table (dbDelta).
+	 * Schema version; bump when the table definition changes.
+	 */
+	const DB_VERSION = '1';
+
+	/**
+	 * Create the table (dbDelta) once per schema version.
 	 */
 	public static function maybe_create_table() {
 		global $wpdb;
+
+		if ( get_option( 'ifa_orders_db_version' ) === self::DB_VERSION ) {
+			return;
+		}
 
 		$table   = self::table();
 		$charset = $wpdb->get_charset_collate();
@@ -113,6 +122,7 @@ class IFA_Payments {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
+		update_option( 'ifa_orders_db_version', self::DB_VERSION );
 	}
 
 	/**
@@ -174,7 +184,13 @@ class IFA_Payments {
 			switch ( $type ) {
 				case 'order_created':
 					$status = isset( $event['data']['attributes']['status'] ) ? (string) $event['data']['attributes']['status'] : '';
-					$result = 'paid' === $status ? $this->fulfill( $event ) : 'waiting (status: ' . $status . ')';
+					if ( 'paid' === $status ) {
+						$result = $this->fulfill( $event );
+					} else {
+						// Lemon Squeezy sends no later "paid" event for an order, so flag it for a manual check.
+						$this->notify_unpaid( $event, $status );
+						$result = 'not delivered (status: ' . $status . ') — owner notified';
+					}
 					break;
 				case 'order_refunded':
 					$result = $this->refund( $event );
@@ -219,15 +235,19 @@ class IFA_Payments {
 		self::maybe_create_table();
 		$table = self::table();
 
-		$existing = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE order_ref = %s", $order_ref ) );
-		if ( $existing ) {
-			return 'already delivered (order #' . $existing . ')';
-		}
-
 		$email   = isset( $attr['user_email'] ) ? sanitize_email( $attr['user_email'] ) : '';
 		$name    = isset( $attr['user_name'] ) ? sanitize_text_field( $attr['user_name'] ) : '';
 		$program = self::resolve_program( $event );
 		$lang    = self::program_lang( $program );
+
+		$existing = $wpdb->get_row( $wpdb->prepare( "SELECT id, delivery FROM {$table} WHERE order_ref = %s", $order_ref ) );
+		if ( $existing && '' !== $existing->delivery ) {
+			return 'already delivered (order #' . $existing->id . ')';
+		}
+		if ( $existing ) {
+			// A previous attempt stored the order but stopped before delivering; finish it now.
+			return $this->deliver( (int) $existing->id, $email, $name, $program, $lang, $attr );
+		}
 
 		$ok = $wpdb->insert(
 			$table,
@@ -251,8 +271,24 @@ class IFA_Payments {
 			}
 			throw new Exception( 'Could not store order: ' . $wpdb->last_error );
 		}
-		$order_id = (int) $wpdb->insert_id;
+		return $this->deliver( (int) $wpdb->insert_id, $email, $name, $program, $lang, $attr );
+	}
 
+	/**
+	 * Deliver the program for a stored order and record what happened.
+	 *
+	 * @param int    $order_id Order row id.
+	 * @param string $email    Buyer email.
+	 * @param string $name     Buyer name.
+	 * @param string $program  Program slug.
+	 * @param string $lang     Language.
+	 * @param array  $attr     Order attributes.
+	 * @return string Result summary for the log.
+	 */
+	private function deliver( $order_id, $email, $name, $program, $lang, $attr ) {
+		global $wpdb;
+
+		$table = self::table();
 		$notes = array();
 		if ( '' === $program ) {
 			$notes[] = 'unknown program in checkout link (check manually)';
@@ -442,6 +478,26 @@ class IFA_Payments {
 			$to,
 			'New Inner First Aid order' . $mode . ': ' . $amount . ' ' . $cur,
 			esc_html( sprintf( 'Buyer: %s <%s> — program: %s — amount: %s %s', $name, $email, $program, $amount, $cur ) )
+		);
+	}
+
+	/**
+	 * Tell the site owner about an order that arrived without being paid.
+	 *
+	 * @param array  $event  Webhook event.
+	 * @param string $status Order status.
+	 */
+	private function notify_unpaid( $event, $status ) {
+		$to = ifa_get_option( 'lead_notify_email', '' );
+		if ( ! is_email( $to ) ) {
+			$to = get_option( 'admin_email' );
+		}
+		$attr  = isset( $event['data']['attributes'] ) ? (array) $event['data']['attributes'] : array();
+		$email = isset( $attr['user_email'] ) ? $attr['user_email'] : '';
+		wp_mail(
+			$to,
+			'Inner First Aid order not delivered (status: ' . $status . ')',
+			esc_html( sprintf( 'Lemon Squeezy order %s for %s arrived with status "%s", so the program was not delivered. Check the order in Lemon Squeezy and deliver it by hand if it was paid.', $event['data']['id'], $email, $status ) )
 		);
 	}
 
